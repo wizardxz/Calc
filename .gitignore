@@ -5,7 +5,6 @@ build
 *.AXF
 *.dep
 *.map
-*.i
 *.s
 *.lst
 *.bak

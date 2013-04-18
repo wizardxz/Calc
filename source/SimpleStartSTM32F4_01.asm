@@ -27,7 +27,89 @@
  .long  0                           /* Reserved                     */
  .long  PendSV_Handler              /* PendSV Handler               */
  .long  SysTick_Handler             /* SysTick Handler              */
-
+ /* External Interrupts */
+ .long  WWDG_IRQHandler                        
+ .long  PVD_IRQHandler                         
+ .long  TAMP_STAMP_IRQHandler                  
+ .long  RTC_WKUP_IRQHandler                    
+ .long  FLASH_IRQHandler                  
+ .long  RCC_IRQHandler                    
+ .long  EXTI0_IRQHandler                       
+ .long  EXTI1_IRQHandler                       
+ .long  EXTI2_IRQHandler                       
+ .long  EXTI3_IRQHandler                       
+ .long  EXTI4_IRQHandler                       
+ .long  DMA1_Stream0_IRQHandler           
+ .long  DMA1_Stream1_IRQHandler           
+ .long  DMA1_Stream2_IRQHandler           
+ .long  DMA1_Stream3_IRQHandler           
+ .long  DMA1_Stream4_IRQHandler           
+ .long  DMA1_Stream5_IRQHandler           
+ .long  DMA1_Stream6_IRQHandler           
+ .long  ADC_IRQHandler                    
+ .long  CAN1_TX_IRQHandler                     
+ .long  CAN1_RX0_IRQHandler                    
+ .long  CAN1_RX1_IRQHandler                    
+ .long  CAN1_SCE_IRQHandler                    
+ .long  EXTI9_5_IRQHandler                     
+ .long  TIM1_BRK_TIM9_IRQHandler          
+ .long  TIM1_UP_TIM10_IRQHandler          
+ .long  TIM1_TRG_COM_TIM11_IRQHandler     
+ .long  TIM1_CC_IRQHandler                     
+ .long  TIM2_IRQHandler                   
+ .long  TIM3_IRQHandler                   
+ .long  TIM4_IRQHandler                   
+ .long  I2C1_EV_IRQHandler                     
+ .long  I2C1_ER_IRQHandler                     
+ .long  I2C2_EV_IRQHandler                     
+ .long  I2C2_ER_IRQHandler                       
+ .long  SPI1_IRQHandler                   
+ .long  SPI2_IRQHandler                   
+ .long  USART1_IRQHandler                 
+ .long  USART2_IRQHandler                 
+ .long  USART3_IRQHandler                 
+ .long  EXTI15_10_IRQHandler                   
+ .long  RTC_Alarm_IRQHandler                   
+ .long  OTG_FS_WKUP_IRQHandler                     
+ .long  TIM8_BRK_TIM12_IRQHandler         
+ .long  TIM8_UP_TIM13_IRQHandler          
+ .long  TIM8_TRG_COM_TIM14_IRQHandler     
+ .long  TIM8_CC_IRQHandler                     
+ .long  DMA1_Stream7_IRQHandler                
+ .long  FSMC_IRQHandler                   
+ .long  SDIO_IRQHandler                   
+ .long  TIM5_IRQHandler                   
+ .long  SPI3_IRQHandler                   
+ .long  UART4_IRQHandler                  
+ .long  UART5_IRQHandler                  
+ .long  TIM6_DAC_IRQHandler               
+ .long  TIM7_IRQHandler                   
+ .long  DMA2_Stream0_IRQHandler           
+ .long  DMA2_Stream1_IRQHandler           
+ .long  DMA2_Stream2_IRQHandler           
+ .long  DMA2_Stream3_IRQHandler           
+ .long  DMA2_Stream4_IRQHandler           
+ .long  ETH_IRQHandler                    
+ .long  ETH_WKUP_IRQHandler                    
+ .long  CAN2_TX_IRQHandler                     
+ .long  CAN2_RX0_IRQHandler                    
+ .long  CAN2_RX1_IRQHandler                    
+ .long  CAN2_SCE_IRQHandler                    
+ .long  OTG_FS_IRQHandler                 
+ .long  DMA2_Stream5_IRQHandler           
+ .long  DMA2_Stream6_IRQHandler           
+ .long  DMA2_Stream7_IRQHandler           
+ .long  USART6_IRQHandler                 
+ .long  I2C3_EV_IRQHandler                     
+ .long  I2C3_ER_IRQHandler                     
+ .long  OTG_HS_EP1_OUT_IRQHandler         
+ .long  OTG_HS_EP1_IN_IRQHandler          
+ .long  OTG_HS_WKUP_IRQHandler                 
+ .long  OTG_HS_IRQHandler                 
+ .long  DCMI_IRQHandler                   
+ .long  CRYP_IRQHandler                   
+ .long  HASH_RNG_IRQHandler               
+ .long  FPU_IRQHandler 
 @; Vendor hardware-specific interrupts go here (Not implemented)
  
 @; --- hardware reset routine
@@ -107,14 +189,171 @@ SVC_Handler:
 DebugMon_Handler:
 	.thumb_func
 PendSV_Handler:
-	bx lr
 	.thumb_func
 SysTick_Handler:
-	push {lr}
-	bl update_number
-	bl refresh_number
-	bl update_led
-	bl refresh_led
-	pop {lr}
-	bx lr
-	
+	.thumb_func
+WWDG_IRQHandler:
+	.thumb_func
+PVD_IRQHandler:
+	.thumb_func
+TAMP_STAMP_IRQHandler:
+	.thumb_func
+RTC_WKUP_IRQHandler:
+	.thumb_func
+FLASH_IRQHandler:
+	.thumb_func
+RCC_IRQHandler:
+	.thumb_func
+EXTI0_IRQHandler:
+	.thumb_func
+EXTI1_IRQHandler:
+	.thumb_func
+EXTI2_IRQHandler:
+	.thumb_func
+EXTI3_IRQHandler:
+	.thumb_func
+EXTI4_IRQHandler:
+	.thumb_func
+DMA1_Stream0_IRQHandler:
+	.thumb_func
+DMA1_Stream1_IRQHandler:
+	.thumb_func
+DMA1_Stream2_IRQHandler:
+	.thumb_func
+DMA1_Stream3_IRQHandler:
+	.thumb_func
+DMA1_Stream4_IRQHandler:
+	.thumb_func
+DMA1_Stream5_IRQHandler:
+	.thumb_func
+DMA1_Stream6_IRQHandler:
+	.thumb_func
+ADC_IRQHandler:
+	.thumb_func
+CAN1_TX_IRQHandler:
+	.thumb_func
+CAN1_RX0_IRQHandler:
+	.thumb_func
+CAN1_RX1_IRQHandler:
+	.thumb_func
+CAN1_SCE_IRQHandler:
+	.thumb_func
+EXTI9_5_IRQHandler:
+	.thumb_func
+TIM1_BRK_TIM9_IRQHandler:
+	.thumb_func
+TIM1_UP_TIM10_IRQHandler:
+	.thumb_func
+TIM1_TRG_COM_TIM11_IRQHandler:
+	.thumb_func
+TIM1_CC_IRQHandler:
+@;	.thumb_func
+@;TIM2_IRQHandler:
+	.thumb_func
+TIM3_IRQHandler:
+	.thumb_func
+TIM4_IRQHandler:
+	.thumb_func
+I2C1_EV_IRQHandler:
+	.thumb_func
+I2C1_ER_IRQHandler:
+	.thumb_func
+I2C2_EV_IRQHandler:
+	.thumb_func
+I2C2_ER_IRQHandler:
+	.thumb_func
+SPI1_IRQHandler:
+	.thumb_func
+SPI2_IRQHandler:
+	.thumb_func
+USART1_IRQHandler:
+	.thumb_func
+USART2_IRQHandler:
+	.thumb_func
+USART3_IRQHandler:
+	.thumb_func
+EXTI15_10_IRQHandler:
+	.thumb_func
+RTC_Alarm_IRQHandler:
+	.thumb_func
+OTG_FS_WKUP_IRQHandler:
+	.thumb_func
+TIM8_BRK_TIM12_IRQHandler:
+	.thumb_func
+TIM8_UP_TIM13_IRQHandler:
+	.thumb_func
+TIM8_TRG_COM_TIM14_IRQHandler:
+	.thumb_func
+TIM8_CC_IRQHandler:
+	.thumb_func
+DMA1_Stream7_IRQHandler:
+	.thumb_func
+FSMC_IRQHandler:
+	.thumb_func
+SDIO_IRQHandler:
+	.thumb_func
+TIM5_IRQHandler:
+	.thumb_func
+SPI3_IRQHandler:
+	.thumb_func
+UART4_IRQHandler:
+	.thumb_func
+UART5_IRQHandler:
+	.thumb_func
+TIM6_DAC_IRQHandler:
+	.thumb_func
+TIM7_IRQHandler:
+	.thumb_func
+DMA2_Stream0_IRQHandler:
+	.thumb_func
+DMA2_Stream1_IRQHandler:
+	.thumb_func
+DMA2_Stream2_IRQHandler:
+	.thumb_func
+DMA2_Stream3_IRQHandler:
+	.thumb_func
+DMA2_Stream4_IRQHandler:
+	.thumb_func
+ETH_IRQHandler:
+	.thumb_func
+ETH_WKUP_IRQHandler:
+	.thumb_func
+CAN2_TX_IRQHandler:
+	.thumb_func
+CAN2_RX0_IRQHandler:
+	.thumb_func
+CAN2_RX1_IRQHandler:
+	.thumb_func
+CAN2_SCE_IRQHandler:
+	.thumb_func
+OTG_FS_IRQHandler:
+	.thumb_func
+DMA2_Stream5_IRQHandler:
+	.thumb_func
+DMA2_Stream6_IRQHandler:
+	.thumb_func
+DMA2_Stream7_IRQHandler:
+	.thumb_func
+USART6_IRQHandler:
+	.thumb_func
+I2C3_EV_IRQHandler:
+	.thumb_func
+I2C3_ER_IRQHandler:
+	.thumb_func
+OTG_HS_EP1_OUT_IRQHandler:
+	.thumb_func
+OTG_HS_EP1_IN_IRQHandler:
+	.thumb_func
+OTG_HS_WKUP_IRQHandler:
+	.thumb_func
+OTG_HS_IRQHandler:
+	.thumb_func
+DCMI_IRQHandler:
+	.thumb_func
+CRYP_IRQHandler:
+	.thumb_func
+HASH_RNG_IRQHandler:
+	.thumb_func
+FPU_IRQHandler:
+	bx  r14	 /* put a breakpoint here when we're debugging so we can trap here but then return to interrupted code */
+ 

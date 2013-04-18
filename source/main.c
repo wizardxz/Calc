@@ -1,10 +1,12 @@
+#include <stdint.h>
 
 void main(void) {
 	
 	display_init();
 	switch_init();
-	systick_init();
-	biz_init();
+	biz_init();	
+	tim_init();
+
 	
 	
 	while (1) {

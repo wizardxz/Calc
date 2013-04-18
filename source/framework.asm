@@ -28,6 +28,9 @@ switch_down_event:	.word 0
 
 	.equ systickport, 0xE000E010
 	.equ systickfreq,	1000
+	.equ RCC, 0x40023830
+	.equ GPIOD, 0x40020c00
+	.equ TIM2, 0x40000000
 	
 @; --- begin code memory
 	.text						@;start the code section
@@ -54,7 +57,95 @@ systick_init:
 	pop {lr}
 	bx LR
 
+	.global tim_init
+	.thumb_func
+tim_init:
+	push {lr}
+	ldr		r0, =RCC @;enable HSITRIM0
+	ldr		r0, [r0, #0]
+	orr.w	r0, r0, #8 
+	ldr		r1, =RCC
+	str		r0, [r1, #0]
+	
+	ldr		r0, =RCC @; Enable TIM2
+	ldr		r0, [r0, #16]
+	orr.w	r0, r0, #1 
+	ldr		r1, =RCC	
+	str		r0, [r1, #16]
+	
+	movw	r0, #99	@; PSC
+	ldr		r1, =TIM2	
+	strh	r0, [r1, #40]	
+	
+	movw	r0, #167	@; ARR
+	str		r0, [r1, #44]	
+	
+	ldr		r1, =TIM2	@; One pulse mode
+	ldrh	r0, [r1, #0]
+	orr.w	r0, r0, #8
+	strh	r0, [r1, #0]
+	
+	ldr		r1, =TIM2	@; Force update
+	ldrh	r0, [r1, #20]
+	orr.w	r0, r0, #1
+	strh	r0, [r1, #20]
+	
+	ldr		r1, =TIM2	@; Clear the update flag
+	ldrh	r0, [r1, #16]
+	bic.w	r0, r0, #1
+	strh	r0, [r1, #16]
+	
+	ldr		r1, =TIM2	@; Enable interrupt on update event
+	ldrh	r0, [r1, #12]
+	orr.w	r0, r0, #1
+	strh	r0, [r1, #12]
+	
+	movs	r0, #28	@; Enable TIM2 IRQ
+	movs	r1, #1
+	lsls	r1, r0
+	lsrs	r2, r0, #5
+	mov.w	r3, 0xe000e000
+	add.w	r2, r3, r2, lsl #2
+	str.w	r1, [r2, #0x100]
+	
+	ldr		r1, =TIM2 @; Enable TIM2 counter
+	ldrh	r0, [r1, #0]
+	orr.w	r0, r0, #1
+	strh	r0, [r1, #0]
 
+
+	
+	pop {lr}
+	bx LR
+
+	.global TIM2_IRQHandler
+	.thumb_func
+TIM2_IRQHandler:
+	push {lr}
+	ldr	r0, =TIM2 @; If update flag is set
+	ldrh	r0, [r0, #16]
+	tst.w	r0, #1
+	beq.n	branch
+
+	bl update_number
+	bl refresh_number
+	bl update_led
+	bl refresh_led
+
+branch:
+	ldr		r1, =TIM2	@; Clear the update flag
+	ldrh	r0, [r1, #16]
+	bic.w	r0, r0, #1
+	strh	r0, [r1, #16]
+	
+	ldr		r1, =TIM2 @; Enable TIM2 counter
+	ldrh	r0, [r1, #0]
+	orr.w	r0, r0, #1
+	strh	r0, [r1, #0]
+
+	pop {lr}
+	bx	lr
+	
 	.macro refresh_number_unit num
 	ldr r3, =number
 	ldr r0, [r3, \num<<2]
