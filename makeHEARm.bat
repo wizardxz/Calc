@@ -1,4 +1,4 @@
-
+@echo off
 REM fix path as necessary
 set path=.\;C:\yagarto\bin;
 

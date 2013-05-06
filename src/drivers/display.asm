@@ -50,64 +50,76 @@ write_digit:
 	set_on AN_NENport AN_NENbit
 	set_on CA_NENport CA_NENbit
 	
-write_digit_ca0:	
+write_digit_ca_null:	
 	cmp r0, #0
+	bne write_digit_ca0
+	set_lat 0 0 0 0 0 0 0 0
+	b write_digit_ca_over
+
+write_digit_ca0:	
+	cmp r0, #48
 	bne write_digit_ca1
 	set_lat 1 1 1 1 1 1 0 0
 	b write_digit_ca_over
 
 write_digit_ca1:
-	cmp r0, #1
+	cmp r0, #49
 	bne write_digit_ca2
 	set_lat 0 1 1 0 0 0 0 0
 	b write_digit_ca_over
 
 write_digit_ca2:
-	cmp r0, #2
+	cmp r0, #50
 	bne write_digit_ca3
 	set_lat 1 1 0 1 1 0 1 0
 	b write_digit_ca_over
 
 write_digit_ca3:
-	cmp r0, #3
+	cmp r0, #51
 	bne write_digit_ca4
 	set_lat 1 1 1 1 0 0 1 0
 	b write_digit_ca_over
 
 write_digit_ca4:	
-	cmp r0, #4
+	cmp r0, #52
 	bne write_digit_ca5
 	set_lat 0 1 1 0 0 1 1 0
 	b write_digit_ca_over
 
 write_digit_ca5:	
-	cmp r0, #5
+	cmp r0, #53
 	bne write_digit_ca6
 	set_lat 1 0 1 1 0 1 1 0
 	b write_digit_ca_over
 
 write_digit_ca6:	
-	cmp r0, #6
+	cmp r0, #54
 	bne write_digit_ca7
 	set_lat 1 0 1 1 1 1 1 0
 	b write_digit_ca_over
 
 write_digit_ca7:	
-	cmp r0, #7
+	cmp r0, #55
 	bne write_digit_ca8
 	set_lat 1 1 1 0 0 0 0 0
 	b write_digit_ca_over
 
 write_digit_ca8:	
-	cmp r0, #8
+	cmp r0, #56
 	bne write_digit_ca9
 	set_lat 1 1 1 1 1 1 1 0
 	b write_digit_ca_over
 
 write_digit_ca9:	
-	cmp r0, #9
-	bne write_digit_ca_over
+	cmp r0, #57
+	bne write_digit_ca_dash
 	set_lat 1 1 1 1 0 1 1 0
+	
+write_digit_ca_dash:
+	cmp r0, #45
+	bne write_digit_ca_over
+	set_lat 0 0 0 0 0 0 1 0
+	
 write_digit_ca_over:
 
 

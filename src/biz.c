@@ -57,7 +57,7 @@ void switch_up(int num) {
 void modify_intensity(int delta) {
 	int result;
 	result = intensity + delta;
-	if (result >= 0 && result <= 110)
+	if (result >= -10 && result <= 110)
 		intensity = result;
 }
 
@@ -71,15 +71,32 @@ void rotary_ccw() {
 
 void update_number() {
 	if (mode == FREQUENCY) {
-		number[0] = frequency / 1000;
-		number[1] = frequency / 100 % 10;
-		number[2] = frequency / 10 % 10;
-		number[3] = frequency % 10;
+		number[0] = 48 + frequency / 1000;
+		number[1] = 48 + frequency / 100 % 10;
+		number[2] = 48 + frequency / 10 % 10;
+		number[3] = 48 + frequency % 10;
 	} else if (mode == TEST) {
-		number[0] = intensity / 1000;
-		number[1] = intensity / 100 % 10;
-		number[2] = intensity / 10 % 10;
-		number[3] = intensity % 10;
+		int abs_value;
+		char sign;
+		int i, j;
+		if (intensity < 0) {
+			sign = '-';
+			abs_value = -intensity;
+		} else {
+			sign = 0;
+			abs_value = intensity;
+		}
+		for (i = 0; i < 4; i++) {
+			if (abs_value == 0 && i > 0) {
+				number[3 - i] = sign;
+				for (j = i + 1; j < 4; j++) {
+					number[3 - j] = 0;
+				}
+				break;
+			}
+			number[3 - i] = 48 + abs_value % 10;
+			abs_value /= 10;
+		}
 	}
 }
 
