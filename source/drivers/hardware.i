@@ -83,3 +83,8 @@
 	.equ S12port2, 	PB
 	.equ S12bit, 	(1<<11)
 	.equ S12mask, 	6
+
+	.equ ROT_Aport,	PC
+	.equ ROT_Abit,	(1<<12)
+	.equ ROT_Bport, PB
+	.equ ROT_Bbit,	(1<<5)

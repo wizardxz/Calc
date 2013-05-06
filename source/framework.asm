@@ -21,10 +21,15 @@ led_start:			.word 0
 button_state:		.word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 .global prev_button_state	
 prev_button_state:	.word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-.global switch_up_event		
+.global switch_up_event
 switch_up_event:	.word 0
-.global switch_down_event	
+.global switch_down_event
 switch_down_event:	.word 0
+.global rotary_cw_event
+rotary_cw_event:	.word 0
+.global rotary_ccw_event
+rotary_ccw_event:	.word 0
+
 
 	.equ systickport, 0xE000E010
 	.equ systickfreq,	1000
@@ -125,14 +130,14 @@ TIM2_IRQHandler:
 	ldr	r0, =TIM2 @; If update flag is set
 	ldrh	r0, [r0, #16]
 	tst.w	r0, #1
-	beq.n	branch
+	beq.n	TIM2_IRQHandler_complete
 
 	bl update_number
 	bl refresh_number
 	bl update_led
 	bl refresh_led
 
-branch:
+TIM2_IRQHandler_complete:
 	ldr		r1, =TIM2	@; Clear the update flag
 	ldrh	r0, [r1, #16]
 	bic.w	r0, r0, #1
@@ -335,5 +340,30 @@ switch_handler:
 	switch_handler_unit get_s10 9
 	switch_handler_unit get_s11 10
 	switch_handler_unit get_s12 11
+	pop {r3-r7, lr}
+	bx lr
+
+	
+	.global rotary_handler
+	.thumb_func
+rotary_handler:
+	push {r3-r7, lr}
+
+	bl get_rotary
+cw:
+	cmp r0, #1
+	bne ccw
+	ldr r3, =rotary_cw_event
+	ldr r3, [r3]
+	blx r3
+	b rotary_handler_complete
+ccw:
+	cmp r0, #2
+	bne rotary_handler_complete
+	ldr r3, =rotary_ccw_event
+	ldr r3, [r3]
+	blx r3
+	
+rotary_handler_complete:
 	pop {r3-r7, lr}
 	bx lr

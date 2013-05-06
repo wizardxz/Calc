@@ -1,16 +1,6 @@
-/*
-  Upper level functions including the event handlers, update function of digit panel and LEDs.
-  They call lower level functions(get/set values from hardware) which is written in asm.
-  These functions has lots of conditional branches and mod operations, which is not necessarily in asm language.
-*/
+
 #define FREQUENCY 0
 #define TEST 1
-
-void modify_frequency(int delta);
-void switch_down(int num);
-void switch_up(int num);
-void update_number();
-void update_led();
 
 extern int number[4];
 extern int led[6]; //off 0, red 1, green 2
@@ -18,18 +8,13 @@ extern int number_start;
 extern int led_start;
 extern void (*switch_down_event)(int);
 extern void (*switch_up_event)(int);
+extern void (*rotary_cw_event)(int);
+extern void (*rotary_ccw_event)(int);
 extern int button_state[12], prev_button_state[12];
 int mode;
 int frequency;
+int intensity;
 
-void biz_init() {
-	frequency = 125;
-	mode = FREQUENCY;
-	
-	switch_down_event = &switch_down;
-	switch_up_event = &switch_up;
-
-}
 
 void modify_frequency(int delta) {
 	int result;
@@ -69,6 +54,20 @@ void switch_up(int num) {
 	
 }
 
+void modify_intensity(int delta) {
+	int result;
+	result = intensity + delta;
+	if (result >= 0 && result <= 110)
+		intensity = result;
+}
+
+void rotary_cw() {
+	modify_intensity(5);
+}
+
+void rotary_ccw() {
+	modify_intensity(-5);
+}
 
 void update_number() {
 	if (mode == FREQUENCY) {
@@ -77,7 +76,10 @@ void update_number() {
 		number[2] = frequency / 10 % 10;
 		number[3] = frequency % 10;
 	} else if (mode == TEST) {
-		number[0] = number[1] = number[2] = number[3] = 0;
+		number[0] = intensity / 1000;
+		number[1] = intensity / 100 % 10;
+		number[2] = intensity / 10 % 10;
+		number[3] = intensity % 10;
 	}
 }
 
@@ -90,4 +92,15 @@ void update_led() {
 		led[1] = 2;
 		led[0] = led[2] = led[3] = led[4] = led[5] = 0;
 	}
+}
+
+void biz_init() {
+	frequency = 125;
+	intensity = 0;
+	mode = TEST;
+	
+	switch_down_event = &switch_down;
+	switch_up_event = &switch_up;
+	rotary_cw_event = &rotary_cw;
+	rotary_ccw_event = &rotary_ccw;
 }
