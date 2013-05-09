@@ -66,7 +66,7 @@ systick_init:
 	.thumb_func
 tim_init:
 	push {lr}
-	ldr		r0, =RCC @;enable HSITRIM0
+	ldr		r0, =RCC @;enable PD
 	ldr		r0, [r0, #0]
 	orr.w	r0, r0, #8 
 	ldr		r1, =RCC
