@@ -1,6 +1,6 @@
 	.equ TIM2, 0x40000000
 	.equ TIM3, 0x40000400
-	.equ TIM3, 0x40000800
+	.equ TIM4, 0x40000800
 
 	.macro timer_init port psc arr
 	movw	r0, \psc	@; PSC

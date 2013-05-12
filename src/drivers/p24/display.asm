@@ -9,30 +9,30 @@
 	.include "src/drivers/stm/gpio.asm"
 
 	.equ LAT0port, 		PC		@;CA_A/LED5-COLON
-	.equ LAT0bit, 		(1<<2)
+	.equ LAT0pin, 		2
 	.equ LAT1port, 		PA		@;CA_B/LED6-DIGIT4
-	.equ LAT1bit, 		(1<<0)
+	.equ LAT1pin, 		0
 	.equ LAT2port, 		PC		@;CA_C/LED1-DIGIT2
-	.equ LAT2bit, 		(1<<3)
+	.equ LAT2pin, 		3
 	.equ LAT3port, 		PA		@;CA_D
-	.equ LAT3bit, 		(1<<7)
+	.equ LAT3pin, 		7
 	.equ LAT4port, 		PA		@;CA_E-AN_R
-	.equ LAT4bit, 		(1<<4)
+	.equ LAT4pin, 		4
 	.equ LAT5port, 		PC		@;CA_F/LED4-DIGIT1
-	.equ LAT5bit, 		(1<<0)
+	.equ LAT5pin, 		0
 	.equ LAT6port, 		PA		@;CA_G/LED2-DIGIT3
-	.equ LAT6bit, 		(1<<1)
+	.equ LAT6pin, 		1
 	.equ LAT7port, 		PA		@;CA_DP/LED3-AN_G
-	.equ LAT7bit, 		(1<<5)
+	.equ LAT7pin, 		5
 
 	.equ CA_NENport, 	PC
-	.equ CA_NENbit,		(1<<1)
+	.equ CA_NENpin,		1
 	.equ AN_NENport, 	PA
-	.equ AN_NENbit,		(1<<6)
+	.equ AN_NENpin,		6
 	.equ CA_CLKport, 	PC
-	.equ CA_CLKbit,		(1<<5)
+	.equ CA_CLKpin,		5
 	.equ AN_CLKport, 	PC
-	.equ AN_CLKbit,		(1<<4)
+	.equ AN_CLKpin,		4
 
 @; --- begin code memory
 	.text						@;start the code section
@@ -41,49 +41,49 @@
 	.thumb_func
 display_init:
 	push {r3-r7, lr}
-	rcc_gpio_init RCCAbit
-	rcc_gpio_init RCCCbit
+	rcc_gpio_init RCCApin
+	rcc_gpio_init RCCCpin
 
-	gpio_init PC 4 0 1 0 1 0 0 1
-	gpio_init PA 6 0 1 0 1 0 0 1
-	gpio_init PC 5 0 1 0 1 0 0 1
-	gpio_init PC 1 0 1 0 1 0 0 1
-	gpio_init PC 2 0 1 0 1 0 0 1
-	gpio_init PA 0 0 1 0 1 0 0 1
-	gpio_init PC 3 0 1 0 1 0 0 1
-	gpio_init PA 7 0 1 0 1 0 0 1
-	gpio_init PA 4 0 1 0 1 0 0 1
-	gpio_init PC 0 0 1 0 1 0 0 1
-	gpio_init PA 1 0 1 0 1 0 0 1
-	gpio_init PA 5 0 1 0 1 0 0 1
+	gpio_init PC 4 1 0 2 1
+	gpio_init PA 6 1 0 2 1
+	gpio_init PC 5 1 0 2 1
+	gpio_init PC 1 1 0 2 1
+	gpio_init PC 2 1 0 2 1
+	gpio_init PA 0 1 0 2 1
+	gpio_init PC 3 1 0 2 1
+	gpio_init PA 7 1 0 2 1
+	gpio_init PA 4 1 0 2 1
+	gpio_init PC 0 1 0 2 1
+	gpio_init PA 1 1 0 2 1
+	gpio_init PA 5 1 0 2 1
 	pop {r3-r7, lr}
 	bx lr
 
-	.macro set_value port bit value
+	.macro set_value port pin value
 	.if \value == 0
-		set_bit \port \bit
+		set_bit \port \pin
 	.else @; value == 1
-		reset_bit \port \bit
+		reset_bit \port \pin
 	.endif
 	.endm
 
 	.macro set_lat v0 v1 v2 v3 v4 v5 v6 v7
-	set_value LAT0port LAT0bit \v0
-	set_value LAT1port LAT1bit \v1
-	set_value LAT2port LAT2bit \v2
-	set_value LAT3port LAT3bit \v3
-	set_value LAT4port LAT4bit \v4
-	set_value LAT5port LAT5bit \v5
-	set_value LAT6port LAT6bit \v6
-	set_value LAT7port LAT7bit \v7
+	set_value LAT0port LAT0pin \v0
+	set_value LAT1port LAT1pin \v1
+	set_value LAT2port LAT2pin \v2
+	set_value LAT3port LAT3pin \v3
+	set_value LAT4port LAT4pin \v4
+	set_value LAT5port LAT5pin \v5
+	set_value LAT6port LAT6pin \v6
+	set_value LAT7port LAT7pin \v7
 	.endm
 
 	.global write_digit
 	.thumb_func 
 write_digit:
 	push {r3-r7,lr}
-	set_bit AN_NENport AN_NENbit
-	set_bit CA_NENport CA_NENbit
+	set_bit AN_NENport AN_NENpin
+	set_bit CA_NENport CA_NENpin
 	
 write_digit_ca_null:	
 	cmp r0, #0
@@ -156,8 +156,8 @@ write_digit_ca_dash:
 	set_lat 0 0 0 0 0 0 1 0
 	
 write_digit_ca_over:
-	reset_bit CA_CLKport CA_CLKbit
-	set_bit CA_CLKport CA_CLKbit
+	reset_bit CA_CLKport CA_CLKpin
+	set_bit CA_CLKport CA_CLKpin
 	
 write_digit_an0:
 	cmp r1, #0
@@ -182,11 +182,11 @@ write_digit_an3:
 	bne write_digit_an_over
 	set_lat 0 1 0 0 0 0 0 0
 write_digit_an_over:
-	reset_bit AN_CLKport AN_CLKbit
-	set_bit AN_CLKport AN_CLKbit
+	reset_bit AN_CLKport AN_CLKpin
+	set_bit AN_CLKport AN_CLKpin
 
-	reset_bit AN_NENport AN_NENbit
-	reset_bit CA_NENport CA_NENbit
+	reset_bit AN_NENport AN_NENpin
+	reset_bit CA_NENport CA_NENpin
 	
 	pop {r3-r7,lr}
 	bx lr
@@ -195,8 +195,8 @@ write_digit_an_over:
 	.thumb_func 
 write_led:
 	push {r3-r7,lr}
-	set_bit AN_NENport AN_NENbit
-	set_bit CA_NENport CA_NENbit
+	set_bit AN_NENport AN_NENpin
+	set_bit CA_NENport CA_NENpin
 	
 write_led_ca0:	
 	cmp r0, #0
@@ -234,8 +234,8 @@ write_led_ca5:
 	set_lat 0 1 0 0 0 0 0 0
 
 write_led_ca_over:
-	reset_bit CA_CLKport CA_CLKbit
-	set_bit CA_CLKport CA_CLKbit
+	reset_bit CA_CLKport CA_CLKpin
+	set_bit CA_CLKport CA_CLKpin
 	
 write_led_an0: 
 	cmp r1, #0
@@ -249,11 +249,11 @@ write_led_an1:
 	set_lat 0 0 0 0 0 0 0 1
 	
 write_led_an_over:
-	reset_bit AN_CLKport AN_CLKbit
-	set_bit AN_CLKport AN_CLKbit
+	reset_bit AN_CLKport AN_CLKpin
+	set_bit AN_CLKport AN_CLKpin
 
-	reset_bit AN_NENport AN_NENbit
-	reset_bit CA_NENport CA_NENbit
+	reset_bit AN_NENport AN_NENpin
+	reset_bit CA_NENport CA_NENpin
 	
 	pop {r3-r7,lr}
 	bx lr

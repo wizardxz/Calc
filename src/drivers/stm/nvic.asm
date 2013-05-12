@@ -1,8 +1,8 @@
-	.equ nvic,			0xe000e000
+	.equ nvic,			0xE000E000
 @;	TIMER
 	.equ TIM2IRQ,		28
 	.equ TIM3IRQ,		29
-	.equ TIM3IRQ,		30
+	.equ TIM4IRQ,		30
 	
 	.macro nvic_timer_init irq
 	mov.w	r1, (1<<\irq)

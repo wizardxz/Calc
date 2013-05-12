@@ -42,7 +42,7 @@ rotary_ccw_event:	.word 0
 	.thumb_func
 tim_init:
 	push {lr}
-	rcc_timer_init TIM2bit
+	rcc_timer_init TIM2pin
 	timer_init TIM2 99 167
 	nvic_timer_init TIM2IRQ
 	timer_enable TIM2
@@ -52,148 +52,148 @@ tim_init:
 	.global TIM2_IRQHandler
 	.thumb_func
 TIM2_IRQHandler:
-	push {lr}
-	ldr	r0, =TIM2 @; If update flag is set
+	push 	{lr}
+	ldr		r0, =TIM2 		@; If update flag is set
 	ldrh	r0, [r0, #16]
 	tst.w	r0, #1
 	beq		TIM2_IRQHandler_complete
 
-	bl update_number
-	bl refresh_number
-	bl update_led
-	bl refresh_led
+	bl 		update_number
+	bl 		refresh_number
+	bl 		update_led
+	bl 		refresh_led
 
 TIM2_IRQHandler_complete:
-	ldr		r1, =TIM2	@; Clear the update flag
+	ldr		r1, =TIM2		@; Clear the update flag
 	ldrh	r0, [r1, #16]
 	bic.w	r0, r0, #1
 	strh	r0, [r1, #16]
 	
-	pop {lr}
-	bx	lr
+	pop 	{lr}
+	bx		lr
 	
 	.macro refresh_number_unit num
-	ldr r3, =number
-	ldr r0, [r3, \num<<2]
-	mov r1, \num
-	bl write_digit
+	ldr 	r3, =number
+	ldr 	r0, [r3, \num*4]
+	movs 	r1, \num
+	bl 		write_digit
 	.endm
 
 	.global refresh_number
 	.thumb_func
 refresh_number:
-	push {r3-r7, lr}
+	push 	{r3-r7, lr}
 	
-	ldr r0, =number_start
-	ldr r0, [r0]
+	ldr 	r0, =number_start
+	ldr 	r0, [r0]
 refresh_number_from_0:
-	cmp r0, #0
-	bne refresh_number_from_1
+	cmp 	r0, #0
+	bne 	refresh_number_from_1
 	refresh_number_unit 0
 	refresh_number_unit 1
 	refresh_number_unit 2
 	refresh_number_unit 3
-	b refresh_number_over
+	b 		refresh_number_over
 refresh_number_from_1:
-	cmp r0, #1
-	bne refresh_number_from_2
+	cmp 	r0, #1
+	bne 	refresh_number_from_2
 	refresh_number_unit 1
 	refresh_number_unit 2
 	refresh_number_unit 3
 	refresh_number_unit 0
-	b refresh_number_over
+	b 		refresh_number_over
 refresh_number_from_2:
-	cmp r0, #2
-	bne refresh_number_from_3
+	cmp 	r0, #2
+	bne 	refresh_number_from_3
 	refresh_number_unit 2
 	refresh_number_unit 3
 	refresh_number_unit 0
 	refresh_number_unit 1
-	b refresh_number_over
+	b 		refresh_number_over
 refresh_number_from_3:
 	refresh_number_unit 3
 	refresh_number_unit 0
 	refresh_number_unit 1
 	refresh_number_unit 2
 refresh_number_over:
-	ldr r0, =number_start
-	ldr r1, [r0]
-	adds r1, #1
-	bics r1, r1, #4
-	str r1, [r0]
+	ldr 	r0, =number_start
+	ldr 	r1, [r0]
+	adds 	r1, #1
+	bics 	r1, r1, #4
+	str 	r1, [r0]
 
-	pop {r3-r7, lr}
-	bx lr	
+	pop 	{r3-r7, lr}
+	bx 		lr	
 
 
 	.macro refresh_led_unit num
-	ldr r3, =led
-	ldr r1, [r3, \num<<2]
-	cmp r1, #0
-	beq 1f
-	mov r0, \num
-	subs r1, #1
-	bl write_led
+	ldr 	r3, =led
+	ldr 	r1, [r3, \num*4]
+	cmp 	r1, #0
+	beq 	1f
+	mov 	r0, \num
+	subs 	r1, #1
+	bl 		write_led
 1:
 	.endm
 
 	.global refresh_led
 	.thumb_func
 refresh_led:
-	push {r3-r7, lr}
+	push 	{r3-r7, lr}
 	
-	ldr r0, =led_start
-	ldr r0, [r0]
+	ldr 	r0, =led_start
+	ldr 	r0, [r0]
 refresh_led_from_0:
-	cmp r0, #0
-	bne refresh_led_from_1
+	cmp 	r0, #0
+	bne 	refresh_led_from_1
 	refresh_led_unit 0
 	refresh_led_unit 1
 	refresh_led_unit 2
 	refresh_led_unit 3
 	refresh_led_unit 4
 	refresh_led_unit 5
-	b refresh_led_over
+	b 		refresh_led_over
 refresh_led_from_1:
-	cmp r0, #1
-	bne refresh_led_from_2
+	cmp 	r0, #1
+	bne 	refresh_led_from_2
 	refresh_led_unit 1
 	refresh_led_unit 2
 	refresh_led_unit 3
 	refresh_led_unit 4
 	refresh_led_unit 5
 	refresh_led_unit 0
-	b refresh_led_over
+	b 		refresh_led_over
 refresh_led_from_2:
-	cmp r0, #1
-	bne refresh_led_from_3
+	cmp 	r0, #1
+	bne 	refresh_led_from_3
 	refresh_led_unit 2
 	refresh_led_unit 3
 	refresh_led_unit 4
 	refresh_led_unit 5
 	refresh_led_unit 0
 	refresh_led_unit 1
-	b refresh_led_over
+	b 		refresh_led_over
 refresh_led_from_3:
-	cmp r0, #1
-	bne refresh_led_from_4
+	cmp 	r0, #1
+	bne 	refresh_led_from_4
 	refresh_led_unit 3
 	refresh_led_unit 4
 	refresh_led_unit 5
 	refresh_led_unit 0
 	refresh_led_unit 1
 	refresh_led_unit 2
-	b refresh_led_over
+	b 		refresh_led_over
 refresh_led_from_4:
-	cmp r0, #1
-	bne refresh_led_from_5
+	cmp 	r0, #1
+	bne 	refresh_led_from_5
 	refresh_led_unit 4
 	refresh_led_unit 5
 	refresh_led_unit 0
 	refresh_led_unit 1
 	refresh_led_unit 2
 	refresh_led_unit 3
-	b refresh_led_over
+	b 		refresh_led_over
 refresh_led_from_5:
 	refresh_led_unit 5
 	refresh_led_unit 0
@@ -203,52 +203,52 @@ refresh_led_from_5:
 	refresh_led_unit 4
 
 refresh_led_over:
-	ldr r0, =led_start
-	ldr r1, [r0]
-	adds r1, #1
-	cmp r1, #6
-	blt refresh_led_over1
-	subs r1, r1, #6
+	ldr 	r0, =led_start
+	ldr 	r1, [r0]
+	adds 	r1, #1
+	cmp 	r1, #6
+	blt 	refresh_led_over1
+	subs 	r1, r1, #6
 refresh_led_over1:
-	str r1, [r0]
+	str 	r1, [r0]
 
-	pop {r3-r7, lr}
-	bx lr
+	pop 	{r3-r7, lr}
+	bx 		lr
 
 	.macro switch_handler_unit get_switch_func num
-	bl \get_switch_func
-	ldr r1, =button_state
-	str r0, [r1, \num<<2]
-	ldr r1, =prev_button_state
-	ldr r0, [r1, \num<<2]
-	ldr r1, =button_state
-	ldr r1, [r1, \num<<2]
-	cmp r0, r1
-	beq 1f
-	blt 2f
-	mov r0, \num
-	ldr r3, =switch_up_event
-	ldr r3, [r3]
-	blx r3
-	b 1f
+	bl 		\get_switch_func
+	ldr 	r1, =button_state
+	str 	r0, [r1, \num<<2]
+	ldr 	r1, =prev_button_state
+	ldr 	r0, [r1, \num<<2]
+	ldr 	r1, =button_state
+	ldr 	r1, [r1, \num<<2]
+	cmp 	r0, r1
+	beq 	1f
+	blt 	2f
+	movs 	r0, \num
+	ldr 	r3, =switch_up_event
+	ldr 	r3, [r3]
+	blx 	r3
+	b 		1f
 2:
-	mov r0, \num
-	ldr r3, =switch_down_event
-	ldr r3, [r3]
-	blx r3
+	mov 	r0, \num
+	ldr 	r3, =switch_down_event
+	ldr 	r3, [r3]
+	blx 	r3
 	
 1:
-	ldr r1, =button_state
-	ldr r0, [r1, \num<<2]
-	ldr r1, =prev_button_state
-	str r0, [r1, \num<<2]
+	ldr 	r1, =button_state
+	ldr 	r0, [r1, \num<<2]
+	ldr 	r1, =prev_button_state
+	str 	r0, [r1, \num<<2]
 
 	.endm
 
 	.global switch_handler
 	.thumb_func
 switch_handler:
-	push {r3-r7, lr}
+	push 	{r3-r7, lr}
 	switch_handler_unit get_s1 0
 	switch_handler_unit get_s2 1
 	switch_handler_unit get_s3 2
@@ -261,30 +261,29 @@ switch_handler:
 	switch_handler_unit get_s10 9
 	switch_handler_unit get_s11 10
 	switch_handler_unit get_s12 11
-	pop {r3-r7, lr}
-	bx lr
+	pop 	{r3-r7, lr}
+	bx 		lr
 
 	
 	.global rotary_handler
 	.thumb_func
 rotary_handler:
-	push {r3-r7, lr}
-
-	bl get_rotary
+	push 	{r3-r7, lr}
+	bl 		get_rotary
 cw:
-	cmp r0, #1
-	bne ccw
-	ldr r3, =rotary_cw_event
-	ldr r3, [r3]
-	blx r3
-	b rotary_handler_complete
+	cmp 	r0, #1
+	bne 	ccw
+	ldr 	r3, =rotary_cw_event
+	ldr 	r3, [r3]
+	blx 	r3
+	b 		rotary_handler_complete
 ccw:
-	cmp r0, #2
-	bne rotary_handler_complete
-	ldr r3, =rotary_ccw_event
-	ldr r3, [r3]
-	blx r3
+	cmp 	r0, #2
+	bne 	rotary_handler_complete
+	ldr 	r3, =rotary_ccw_event
+	ldr 	r3, [r3]
+	blx 	r3
 	
 rotary_handler_complete:
-	pop {r3-r7, lr}
-	bx lr
+	pop 	{r3-r7, lr}
+	bx 		lr

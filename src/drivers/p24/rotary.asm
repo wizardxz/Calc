@@ -8,9 +8,9 @@
 	.include "src/drivers/stm/gpio.asm"
 
 	.equ ROT_Aport,	PC
-	.equ ROT_Abit,	(1<<12)
+	.equ ROT_Apin,	12
 	.equ ROT_Bport, PB
-	.equ ROT_Bbit,	(1<<5)
+	.equ ROT_Bpin,	5
 	
 @; --- begin code memory
 	.text						@;start the code section
@@ -19,11 +19,11 @@
 	.thumb_func
 rotary_init:
 	push {r3-r7, lr}
-	rcc_gpio_init RCCBbit
-	rcc_gpio_init RCCCbit
+	rcc_gpio_init RCCBpin
+	rcc_gpio_init RCCCpin
 
-	gpio_init PC 12 0 0 _ _ _ 0 1
-	gpio_init PB 5 0 0 _ _ _ 0 1
+	gpio_init PC 12 0 _ _ 1
+	gpio_init PB 5 0 _ _ 1
 	
 	pop {r3-r7, lr}
 	bx lr
@@ -35,11 +35,11 @@ get_rotary:
 
 	movs 	r4, #0
 
-	read_bit ROT_Aport ROT_Abit
+	read_bit ROT_Aport ROT_Apin
 	cmp		r0, #0
 	bne 	get_rotary_return
 
-	read_bit ROT_Bport ROT_Bbit
+	read_bit ROT_Bport ROT_Bpin
 	cmp		r0, #0
 	beq 	ccw
 cw:
@@ -49,7 +49,7 @@ ccw:
 	movs 	r4, #2
 
 wait_until_PC12_reset:
-	read_bit ROT_Aport ROT_Abit
+	read_bit ROT_Aport ROT_Apin
 	cmp		r0, #0
 	beq		wait_until_PC12_reset
 	
