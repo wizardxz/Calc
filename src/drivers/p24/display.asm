@@ -41,8 +41,8 @@
 	.thumb_func
 display_init:
 	push {r3-r7, lr}
-	enable_gpio RCCAbit
-	enable_gpio RCCCbit
+	rcc_gpio_init RCCAbit
+	rcc_gpio_init RCCCbit
 
 	gpio_init PC 4 0 1 0 1 0 0 1
 	gpio_init PA 6 0 1 0 1 0 0 1

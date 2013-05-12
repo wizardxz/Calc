@@ -9,117 +9,43 @@
 @; --- bss
 	.bss
 	
-.global number				
+	.global number				
 number:				.word 0, 0, 0, 0
-.global number_start		
+	.global number_start		
 number_start:		.word 0
-.global led					
+	.global led					
 led:				.word 0, 0, 0, 0, 0, 0
-.global led_start			
+	.global led_start			
 led_start:			.word 0
-.global button_state		
+	.global button_state		
 button_state:		.word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-.global prev_button_state	
+	.global prev_button_state	
 prev_button_state:	.word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-.global switch_up_event
+	.global switch_up_event
 switch_up_event:	.word 0
-.global switch_down_event
+	.global switch_down_event
 switch_down_event:	.word 0
-.global rotary_cw_event
+	.global rotary_cw_event
 rotary_cw_event:	.word 0
-.global rotary_ccw_event
+	.global rotary_ccw_event
 rotary_ccw_event:	.word 0
 
-
-	.equ systickport, 0xE000E010
-	.equ systickfreq,	1000
-	.equ RCC, 0x40023830
-	.equ GPIOD, 0x40020c00
-	.equ TIM2, 0x40000000
+	.include "src/drivers/stm/rcc.asm"
+	.include "src/drivers/stm/gpio.asm"
+	.include "src/drivers/stm/nvic.asm"
+	.include "src/drivers/stm/timer.asm"
 	
 @; --- begin code memory
 	.text						@;start the code section
-
-	.global systick_init
-	.thumb_func
-systick_init:
-	push {lr}
-	@;SYST_RVR = SysTick_RVR_RELOAD(1000);
-	ldr		r3, =systickport
-	ldr		r2, =systickfreq
-	str		r2,	[r3, #4]
-	
-	@;SYST_CVR = SysTick_CVR_CURRENT(0);
-	movs	r2, #0
-	str		r2, [r3, #8]
-	
-	@;SYST_CSR |= SysTick_CSR_ENABLE_MASK | SysTick_CSR_TICKINT_MASK | SysTick_CSR_CLKSOURCE_SHIFT;
-	ldr		r2, [r3]
-	movs	r1, #3
-	orrs	r2, r1
-	str		r2, [r3]
-
-	pop {lr}
-	bx LR
 
 	.global tim_init
 	.thumb_func
 tim_init:
 	push {lr}
-	ldr		r0, =RCC @;enable PD
-	ldr		r0, [r0, #0]
-	orr.w	r0, r0, #8 
-	ldr		r1, =RCC
-	str		r0, [r1, #0]
-	
-	ldr		r0, =RCC @; Enable TIM2
-	ldr		r0, [r0, #16]
-	orr.w	r0, r0, #1 
-	ldr		r1, =RCC	
-	str		r0, [r1, #16]
-	
-	movw	r0, #99	@; PSC
-	ldr		r1, =TIM2	
-	strh	r0, [r1, #40]	
-	
-	movw	r0, #167	@; ARR
-	str		r0, [r1, #44]	
-	
-	ldr		r1, =TIM2	@; One pulse mode
-	ldrh	r0, [r1, #0]
-	orr.w	r0, r0, #8
-	strh	r0, [r1, #0]
-	
-	ldr		r1, =TIM2	@; Force update
-	ldrh	r0, [r1, #20]
-	orr.w	r0, r0, #1
-	strh	r0, [r1, #20]
-	
-	ldr		r1, =TIM2	@; Clear the update flag
-	ldrh	r0, [r1, #16]
-	bic.w	r0, r0, #1
-	strh	r0, [r1, #16]
-	
-	ldr		r1, =TIM2	@; Enable interrupt on update event
-	ldrh	r0, [r1, #12]
-	orr.w	r0, r0, #1
-	strh	r0, [r1, #12]
-	
-	movs	r0, #28	@; Enable TIM2 IRQ
-	movs	r1, #1
-	lsls	r1, r0
-	lsrs	r2, r0, #5
-	mov.w	r3, 0xe000e000
-	add.w	r2, r3, r2, lsl #2
-	str.w	r1, [r2, #0x100]
-	
-	ldr		r1, =TIM2 @; Enable TIM2 counter
-	ldrh	r0, [r1, #0]
-	orr.w	r0, r0, #1
-	strh	r0, [r1, #0]
-
-
-	
+	rcc_timer_init TIM2bit
+	timer_init TIM2 99 167
+	nvic_timer_init TIM2IRQ
+	timer_enable TIM2
 	pop {lr}
 	bx LR
 
@@ -130,7 +56,7 @@ TIM2_IRQHandler:
 	ldr	r0, =TIM2 @; If update flag is set
 	ldrh	r0, [r0, #16]
 	tst.w	r0, #1
-	beq.n	TIM2_IRQHandler_complete
+	beq		TIM2_IRQHandler_complete
 
 	bl update_number
 	bl refresh_number
@@ -143,11 +69,6 @@ TIM2_IRQHandler_complete:
 	bic.w	r0, r0, #1
 	strh	r0, [r1, #16]
 	
-	ldr		r1, =TIM2 @; Enable TIM2 counter
-	ldrh	r0, [r1, #0]
-	orr.w	r0, r0, #1
-	strh	r0, [r1, #0]
-
 	pop {lr}
 	bx	lr
 	

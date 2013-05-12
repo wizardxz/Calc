@@ -19,8 +19,8 @@
 	.thumb_func
 rotary_init:
 	push {r3-r7, lr}
-	enable_gpio RCCBbit
-	enable_gpio RCCCbit
+	rcc_gpio_init RCCBbit
+	rcc_gpio_init RCCCbit
 
 	gpio_init PC 12 0 0 _ _ _ 0 1
 	gpio_init PB 5 0 0 _ _ _ 0 1

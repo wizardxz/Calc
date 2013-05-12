@@ -63,9 +63,9 @@
 	.thumb_func
 switch_init:
 	push {r3-r7, lr}
-	enable_gpio RCCBbit
-	enable_gpio RCCCbit
-	enable_gpio RCCDbit
+	rcc_gpio_init RCCBbit
+	rcc_gpio_init RCCCbit
+	rcc_gpio_init RCCDbit
 
 	gpio_init PB 0 0 0 _ _ _ 0 1
 	gpio_init PD 2 0 0 _ _ _ 0 1
