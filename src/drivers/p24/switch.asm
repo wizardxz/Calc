@@ -4,57 +4,23 @@
 								@; for ARM, Thumb-2, or pre-Thumb-2 Thumb
 	.thumb						@; Use thmb instructions only
 
+	.include "src/drivers/stm/common.asm"
 	.include "src/drivers/stm/rcc.asm"
 	.include "src/drivers/stm/gpio.asm"
 
-	.equ S1lockport,	PB
-	.equ S1lockpin, 	9
-	.equ S1port,		PB
-	.equ S1pin, 		0
-	.equ S2lockport,	PB
-	.equ S2lockpin, 	9
-	.equ S2port, 		PD
-	.equ S2pin, 		2
-	.equ S3lockport,	PB
-	.equ S3lockpin, 	9
-	.equ S3port, 		PB
-	.equ S3pin, 		1
-	.equ S4lockport,	PB
-	.equ S4lockpin, 	9
-	.equ S4port, 		PB
-	.equ S4pin, 		6
-	.equ S5lockport,	PC
-	.equ S5lockpin, 	10
-	.equ S5port, 		PB
-	.equ S5pin, 		0
-	.equ S6lockport,	PC
-	.equ S6lockpin, 	10
-	.equ S6port, 		PD
-	.equ S6pin, 		2
-	.equ S7lockport,	PC
-	.equ S7lockpin, 	10
-	.equ S7port, 		PB
-	.equ S7pin, 		1
-	.equ S8lockport,	PC
-	.equ S8lockpin, 	10
-	.equ S8port, 		PB
-	.equ S8pin, 		6
-	.equ S9lockport,	PC
-	.equ S9lockpin, 	11
-	.equ S9port, 		PB
-	.equ S9pin, 		0
-	.equ S10lockport,	PC
-	.equ S10lockpin, 	11
-	.equ S10port, 		PD
-	.equ S10pin, 		2
-	.equ S11lockport,	PC
-	.equ S11lockpin, 	11
-	.equ S11port, 		PB
-	.equ S11pin, 		1
-	.equ S12lockport,	PC
-	.equ S12lockpin, 	11
-	.equ S12port, 		PB
-	.equ S12pin, 		6
+	.equ S1lockport,GPIOB;	.equ S1lockpin,9;	.equ S1port,GPIOB;	.equ S1pin,0
+	.equ S2lockport,GPIOB;	.equ S2lockpin,9;	.equ S2port,GPIOD;	.equ S2pin,2
+	.equ S3lockport,GPIOB;	.equ S3lockpin,9;	.equ S3port,GPIOB;	.equ S3pin,1
+	.equ S4lockport,GPIOB;	.equ S4lockpin,9;	.equ S4port,GPIOB;	.equ S4pin,6
+	.equ S5lockport,GPIOC;	.equ S5lockpin,10;	.equ S5port,GPIOB;	.equ S5pin,0
+	.equ S6lockport,GPIOC;	.equ S6lockpin,10;	.equ S6port,GPIOD;	.equ S6pin,2
+	.equ S7lockport,GPIOC;	.equ S7lockpin,10;	.equ S7port,GPIOB;	.equ S7pin,1
+	.equ S8lockport,GPIOC;	.equ S8lockpin,10;	.equ S8port,GPIOB;	.equ S8pin,6
+	.equ S9lockport,GPIOC;	.equ S9lockpin,11;	.equ S9port,GPIOB;	.equ S9pin,0
+	.equ S10lockport,GPIOC;	.equ S10lockpin,11;	.equ S10port,GPIOD;	.equ S10pin,2
+	.equ S11lockport,GPIOC;	.equ S11lockpin,11;	.equ S11port,GPIOB;	.equ S11pin,1
+	.equ S12lockport,GPIOC;	.equ S12lockpin,11;	.equ S12port,GPIOB;	.equ S12pin,6
+
 	
 @; --- begin code memory
 	.text						@;start the code section
@@ -63,17 +29,17 @@
 	.thumb_func
 switch_init:
 	push {r3-r7, lr}
-	rcc_gpio_init RCCBpin
-	rcc_gpio_init RCCCpin
-	rcc_gpio_init RCCDpin
+	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIOBEN_pin,RCC_AHB1ENR_GPIOBEN_bits,1
+	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIOCEN_pin,RCC_AHB1ENR_GPIOCEN_bits,1
+	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIODEN_pin,RCC_AHB1ENR_GPIODEN_bits,1
 
-	gpio_init PB 0 0 _ _ 1
-	gpio_init PD 2 0 _ _ 1
-	gpio_init PB 1 0 _ _ 1
-	gpio_init PB 6 0 _ _ 1
-	gpio_init PB 9 1 0 2 1
-	gpio_init PC 10 1 0 2 1
-	gpio_init PC 11 1 0 2 1
+	gpio_init GPIOB,0,0,_,_,1
+	gpio_init GPIOD,2,0,_,_,1
+	gpio_init GPIOB,1,0,_,_,1
+	gpio_init GPIOB,6,0,_,_,1
+	gpio_init GPIOB,9,1,0,2,1
+	gpio_init GPIOC,10,1,0,2,1
+	gpio_init GPIOC,11,1,0,2,1
 	
 
 	pop {r3-r7, lr}
@@ -82,7 +48,7 @@ switch_init:
 
 	.macro get_sw lockport lockpin port pin
 	reset_bit \lockport \lockpin
-	read_bit \port \pin
+	read_bit_n \port GPIO_IDR \pin
 	set_bit \lockport \lockpin
 	.endm
 

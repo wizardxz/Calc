@@ -114,7 +114,7 @@ void update_led() {
 void biz_init() {
 	frequency = 125;
 	intensity = 0;
-	mode = TEST;
+	mode = FREQUENCY;
 	
 	switch_down_event = &switch_down;
 	switch_up_event = &switch_up;

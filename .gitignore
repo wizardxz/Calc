@@ -1,4 +1,6 @@
 build
+inc
+makeHEARmWithLib.bat
 *.o
 *.elf
 *.hex

@@ -1,34 +1,37 @@
-	.equ TIM2, 0x40000000
-	.equ TIM3, 0x40000400
-	.equ TIM4, 0x40000800
+	.equ TIM2,		0x40000000
+	.equ TIM3,		0x40000400
+	.equ TIM4,		0x40000800
 
-	.macro timer_init port psc arr
-	movw	r0, \psc	@; PSC
-	ldr		r1, =\port	
-	strh	r0, [r1, #40]	
+	@;TIMx_CR1
+	.equ	TIM_CR1, 0x00
+	.equ	TIM_CR1_CEN_pin, 0;	.equ TIM_CR1_CEN_bits, (1<<TIM_CR1_CEN_pin)
+
+	@;TIMx_DIER
+	.equ	TIM_DIER, 0x0C
+	.equ	TIM_DIER_UIE_pin, 0;	.equ TIM_DIER_UIE_bits, (1<<TIM_DIER_UIE_pin)
 	
-	movw	r0, \arr	@; ARR
-	str		r0, [r1, #44]	
+	@;TIMx_SR
+	.equ	TIM_SR, 0x10
+	.equ	TIM_SR_UIF_pin, 0;	.equ TIM_SR_UIF_bits, (1<<TIM_SR_UIF_pin)
 	
-	ldr		r1, =\port	@; Force update
-	ldrh	r0, [r1, #20]
-	orr.w	r0, r0, #1
-	strh	r0, [r1, #20]
+	@;TIMx_EGR
+	.equ	TIM_EGR, 0x14
+	.equ	TIM_EGR_UG_pin, 0;	.equ TIM_EGR_UG_bits, (1<<TIM_EGR_UG_pin)
 	
-	ldr		r1, =\port	@; Clear the update flag
-	ldrh	r0, [r1, #16]
-	bic.w	r0, r0, #1
-	strh	r0, [r1, #16]
+	@;TIMx_PSC
+	.equ	TIM_PSC, 0x28
+	.equ	TIM_PSC_PSC_pin, 0;	.equ TIM_PSC_PSC_bits, ((1<<16)<<TIM_PSC_PSC_pin)
 	
-	ldr		r1, =\port	@; Enable interrupt on update event
-	ldrh	r0, [r1, #12]
-	orr.w	r0, r0, #1
-	strh	r0, [r1, #12]
+	@;TIMx_ARR
+	.equ	TIM_ARR, 0x2C
+	.equ	TIM_ARR_ARR_pin, 0;	.equ TIM_ARR_ARR_bits, ((1<<16)<<TIM_ARR_ARR_pin)
+	
+	
+	.macro timer_init base psc arr
+	set_reg \base,TIM_PSC,TIM_PSC_PSC_pin,TIM_PSC_PSC_bits,\psc,1
+	set_reg \base,TIM_ARR,TIM_ARR_ARR_pin,TIM_ARR_ARR_bits,\arr,1
+	set_reg \base,TIM_EGR,TIM_EGR_UG_pin,TIM_EGR_UG_bits,1,1	@; Force update
+	set_reg \base,TIM_SR,TIM_SR_UIF_pin,TIM_SR_UIF_bits,0		@; Clear the update flag
+	set_reg \base,TIM_DIER,TIM_DIER_UIE_pin,TIM_DIER_UIE_bits,1	@; Enable interrupt on update event
 	.endm
 	
-	.macro timer_enable port
-	ldr		r1, =\port @; Enable counter
-	ldrh	r0, [r1, #0]
-	orr.w	r0, r0, #1
-	strh	r0, [r1, #0]
-	.endm

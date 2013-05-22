@@ -11,12 +11,12 @@
 	
 	.global number				
 number:				.word 0, 0, 0, 0
-	.global number_start		
-number_start:		.word 0
+	.global number_cursor		
+number_cursor:		.word 0
 	.global led					
 led:				.word 0, 0, 0, 0, 0, 0
-	.global led_start			
-led_start:			.word 0
+	.global led_cursor			
+led_cursor:			.word 0
 	.global button_state		
 button_state:		.word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	.global prev_button_state	
@@ -30,22 +30,27 @@ rotary_cw_event:	.word 0
 	.global rotary_ccw_event
 rotary_ccw_event:	.word 0
 
+	.include "src/drivers/stm/common.asm"
 	.include "src/drivers/stm/rcc.asm"
 	.include "src/drivers/stm/gpio.asm"
 	.include "src/drivers/stm/nvic.asm"
 	.include "src/drivers/stm/timer.asm"
+	.include "src/drivers/stm/exti.asm"
+
 	
 @; --- begin code memory
 	.text						@;start the code section
 
+	
 	.global tim_init
 	.thumb_func
 tim_init:
 	push {lr}
-	rcc_timer_init TIM2pin
-	timer_init TIM2 99 167
-	nvic_timer_init TIM2IRQ
-	timer_enable TIM2
+	set_reg RCC RCC_APB1ENR RCC_APB1ENR_TIM2EN_pin RCC_APB1ENR_TIM2EN_bits 1
+	timer_init TIM2,(1<<5),(1<<5)
+	set_reg_n NVIC,NVIC_ISER,NVIC_ISER_width,NVIC_TIM2IRQ,1 @; Enable tim2 nvic
+	set_reg TIM2,TIM_CR1,TIM_CR1_CEN_pin,TIM_CR1_CEN_bits,1	@; Enable counter
+	
 	pop {lr}
 	bx LR
 
@@ -64,146 +69,49 @@ TIM2_IRQHandler:
 	bl 		refresh_led
 
 TIM2_IRQHandler_complete:
-	ldr		r1, =TIM2		@; Clear the update flag
-	ldrh	r0, [r1, #16]
-	bic.w	r0, r0, #1
-	strh	r0, [r1, #16]
+	set_reg TIM2,TIM_SR,TIM_SR_UIF_pin,TIM_SR_UIF_bits,0		@; Clear the update flag
 	
 	pop 	{lr}
 	bx		lr
 	
-	.macro refresh_number_unit num
-	ldr 	r3, =number
-	ldr 	r0, [r3, \num*4]
-	movs 	r1, \num
-	bl 		write_digit
-	.endm
-
 	.global refresh_number
 	.thumb_func
 refresh_number:
 	push 	{r3-r7, lr}
 	
-	ldr 	r0, =number_start
-	ldr 	r0, [r0]
-refresh_number_from_0:
-	cmp 	r0, #0
-	bne 	refresh_number_from_1
-	refresh_number_unit 0
-	refresh_number_unit 1
-	refresh_number_unit 2
-	refresh_number_unit 3
-	b 		refresh_number_over
-refresh_number_from_1:
-	cmp 	r0, #1
-	bne 	refresh_number_from_2
-	refresh_number_unit 1
-	refresh_number_unit 2
-	refresh_number_unit 3
-	refresh_number_unit 0
-	b 		refresh_number_over
-refresh_number_from_2:
-	cmp 	r0, #2
-	bne 	refresh_number_from_3
-	refresh_number_unit 2
-	refresh_number_unit 3
-	refresh_number_unit 0
-	refresh_number_unit 1
-	b 		refresh_number_over
-refresh_number_from_3:
-	refresh_number_unit 3
-	refresh_number_unit 0
-	refresh_number_unit 1
-	refresh_number_unit 2
-refresh_number_over:
-	ldr 	r0, =number_start
+	ldr 	r0, =number_cursor
+	ldr 	r1, [r0]
+	
+	ldr 	r2, =number
+	adds	r2, r2, r1, lsl #2
+	ldr 	r0, [r2]
+	bl 		write_digit
+
+	@;update cursor
+	ldr 	r0, =number_cursor
 	ldr 	r1, [r0]
 	adds 	r1, #1
-	bics 	r1, r1, #4
+	bics 	r1, r1, ~3
 	str 	r1, [r0]
 
 	pop 	{r3-r7, lr}
 	bx 		lr	
-
-
-	.macro refresh_led_unit num
-	ldr 	r3, =led
-	ldr 	r1, [r3, \num*4]
-	cmp 	r1, #0
-	beq 	1f
-	mov 	r0, \num
-	subs 	r1, #1
-	bl 		write_led
-1:
-	.endm
 
 	.global refresh_led
 	.thumb_func
 refresh_led:
 	push 	{r3-r7, lr}
 	
-	ldr 	r0, =led_start
-	ldr 	r0, [r0]
-refresh_led_from_0:
-	cmp 	r0, #0
-	bne 	refresh_led_from_1
-	refresh_led_unit 0
-	refresh_led_unit 1
-	refresh_led_unit 2
-	refresh_led_unit 3
-	refresh_led_unit 4
-	refresh_led_unit 5
-	b 		refresh_led_over
-refresh_led_from_1:
-	cmp 	r0, #1
-	bne 	refresh_led_from_2
-	refresh_led_unit 1
-	refresh_led_unit 2
-	refresh_led_unit 3
-	refresh_led_unit 4
-	refresh_led_unit 5
-	refresh_led_unit 0
-	b 		refresh_led_over
-refresh_led_from_2:
-	cmp 	r0, #1
-	bne 	refresh_led_from_3
-	refresh_led_unit 2
-	refresh_led_unit 3
-	refresh_led_unit 4
-	refresh_led_unit 5
-	refresh_led_unit 0
-	refresh_led_unit 1
-	b 		refresh_led_over
-refresh_led_from_3:
-	cmp 	r0, #1
-	bne 	refresh_led_from_4
-	refresh_led_unit 3
-	refresh_led_unit 4
-	refresh_led_unit 5
-	refresh_led_unit 0
-	refresh_led_unit 1
-	refresh_led_unit 2
-	b 		refresh_led_over
-refresh_led_from_4:
-	cmp 	r0, #1
-	bne 	refresh_led_from_5
-	refresh_led_unit 4
-	refresh_led_unit 5
-	refresh_led_unit 0
-	refresh_led_unit 1
-	refresh_led_unit 2
-	refresh_led_unit 3
-	b 		refresh_led_over
-refresh_led_from_5:
-	refresh_led_unit 5
-	refresh_led_unit 0
-	refresh_led_unit 1
-	refresh_led_unit 2
-	refresh_led_unit 3
-	refresh_led_unit 4
+	ldr 	r0, =led_cursor
+	ldr 	r1, [r0]
+	
+	ldr		r2, =led
+	adds	r2, r2, r1, lsl #2
+	ldr		r0, [r2]
+	bl 		write_led
 
-refresh_led_over:
-	ldr 	r0, =led_start
+	@;update cursor
+	ldr 	r0, =led_cursor
 	ldr 	r1, [r0]
 	adds 	r1, #1
 	cmp 	r1, #6
@@ -249,6 +157,8 @@ refresh_led_over1:
 	.thumb_func
 switch_handler:
 	push 	{r3-r7, lr}
+	set_reg TIM2,TIM_CR1,TIM_CR1_CEN_pin,TIM_CR1_CEN_bits,0	@; Disable counter
+
 	switch_handler_unit get_s1 0
 	switch_handler_unit get_s2 1
 	switch_handler_unit get_s3 2
@@ -261,29 +171,99 @@ switch_handler:
 	switch_handler_unit get_s10 9
 	switch_handler_unit get_s11 10
 	switch_handler_unit get_s12 11
+	
+	set_reg TIM2,TIM_CR1,TIM_CR1_CEN_pin,TIM_CR1_CEN_bits,1	@; Enable counter
+
 	pop 	{r3-r7, lr}
 	bx 		lr
 
+@;	.global timer_on
+@;	.thumb_func
+@;timer_on:
+@;	set_reg TIM2,TIM_CR1,TIM_CR1_CEN_pin,TIM_CR1_CEN_bits,1	@; Enable counter
+@;	bx lr
+@;
+@;	.global timer_off
+@;	.thumb_func
+@;timer_off:
+@;	set_reg TIM2,TIM_CR1,TIM_CR1_CEN_pin,TIM_CR1_CEN_bits,0	@; Disable counter
+@;	bx lr
 	
-	.global rotary_handler
+	
+	.global EXTI15_10_IRQHandler
 	.thumb_func
-rotary_handler:
-	push 	{r3-r7, lr}
-	bl 		get_rotary
-cw:
-	cmp 	r0, #1
-	bne 	ccw
+EXTI15_10_IRQHandler:
+	push {lr}
+	read_bit_n EXTI, EXTI_PR, 12
+	cmp 	r0, 0
+	beq 	1f
+	mov.w	r1, (1<<12)
+2:	subs	r1, #1
+	bne		2b
+	read_bit_n GPIOC, GPIO_IDR, 12
+	cmp		r0, #1
+	bne		3f
+	read_bit_n GPIOB, GPIO_IDR, 5
+	cmp		r0, #0
+	bne		4f
+	
 	ldr 	r3, =rotary_cw_event
+	cmp		r3, #0
+	beq		3f
 	ldr 	r3, [r3]
 	blx 	r3
-	b 		rotary_handler_complete
-ccw:
-	cmp 	r0, #2
-	bne 	rotary_handler_complete
-	ldr 	r3, =rotary_ccw_event
+	b		3f
+
+4:	ldr 	r3, =rotary_ccw_event
+	cmp		r3, #0
+	beq		3f
 	ldr 	r3, [r3]
 	blx 	r3
 	
-rotary_handler_complete:
-	pop 	{r3-r7, lr}
-	bx 		lr
+3:	set_reg_n EXTI, EXTI_PR, EXTI_PR_width, 12, 1, 1
+
+1:	pop {lr}
+	bx lr
+
+	.global test1
+	.thumb_func
+test1:
+	push {lr}
+	read_bit_n EXTI, EXTI_PR, 12
+	pop {lr}
+	bx lr
+	
+	.global test2
+	.thumb_func
+test2:
+	push {lr}
+	mov.w	r1, (1<<12)
+2:	subs	r1, #1
+	bne		2b
+	pop {lr}
+	bx lr
+
+	.global test3
+	.thumb_func
+test3:
+	push {lr}
+	read_bit_n GPIOC, GPIO_IDR, 12
+	pop {lr}
+	bx lr
+	
+	.global test4
+	.thumb_func
+test4:
+	push {lr}
+	read_bit_n GPIOB, GPIO_IDR, 5
+	pop {lr}
+	bx lr
+
+	.global test5
+	.thumb_func
+test5:
+	push {lr}
+	set_reg_n EXTI, EXTI_PR, EXTI_PR_width, 12, 1, 1
+	pop {lr}
+	bx lr
+	

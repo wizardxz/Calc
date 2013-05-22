@@ -7,11 +7,11 @@ mkdir build
 copy keil\* build
 
 REM assemble with '-g' omitted where we want to hide things in the AXF
-arm-none-eabi-as -g -mcpu=cortex-m4 -o ./build/startup.o ./src/startup.asm
-arm-none-eabi-as -g -mcpu=cortex-m4 -o ./build/display_driver.o ./src/drivers/p24/display.asm
-arm-none-eabi-as -g -mcpu=cortex-m4 -o ./build/switch_driver.o ./src/drivers/p24/switch.asm
-arm-none-eabi-as -g -mcpu=cortex-m4 -o ./build/rotary_driver.o ./src/drivers/p24/rotary.asm
-arm-none-eabi-as -g -mcpu=cortex-m4 -o ./build/framework.o ./src/framework.asm
+arm-none-eabi-as -mcpu=cortex-m4 -o ./build/startup.o ./src/startup.asm
+arm-none-eabi-as -mcpu=cortex-m4 -o ./build/display_driver.o ./src/drivers/p24/display.asm
+arm-none-eabi-as -mcpu=cortex-m4 -o ./build/switch_driver.o ./src/drivers/p24/switch.asm
+arm-none-eabi-as -mcpu=cortex-m4 -o ./build/rotary_driver.o ./src/drivers/p24/rotary.asm
+arm-none-eabi-as -mcpu=cortex-m4 -o ./build/framework.o ./src/framework.asm
 
 REM compiling C
 arm-none-eabi-gcc -I./  -c -mthumb -O0 -g -mcpu=cortex-m4 ./src/main.c -o ./build/main.o

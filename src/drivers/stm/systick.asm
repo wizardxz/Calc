@@ -1,8 +1,9 @@
-	.equ systickport, 	0xE000E010
+	.equ SYSTICK,	0xE000E010
 
 	.macro systick_init frequency
 	@;SYST_RVR = SysTick_RVR_RELOAD(frequency);
-	ldr		r3, =systickport
+	mov.w	r3, \systickport_L
+	movt	r3, \systickport_H
 	ldr		r2, =\frequency
 	str		r2,	[r3, #4]
 	

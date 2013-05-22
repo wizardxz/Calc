@@ -111,7 +111,8 @@
  .long  HASH_RNG_IRQHandler               
  .long  FPU_IRQHandler 
 @; Vendor hardware-specific interrupts go here (Not implemented)
- 
+
+	.include "src/drivers/stm/common.asm" 
 @; --- hardware reset routine
 	.text					@; start the reset code section
 
@@ -146,14 +147,18 @@ zero_bss_loop:
 	bgt zero_bss_loop		@; Repeat until done
 
 	@; necessary hardware stuff (todo: crib from disassembly of Keil initPLL.c)
-	initPLL:	@; !!todo -- fix this!				
-				@; put code here to set up PLL 
-	@;bl SystemInit
-	@; do the 'C' global variable inits 'by hand' (since the above doesn't work)
-@;	bl CortexM3cOps_init @; !!todo -- fix this!	
-	@; do the asm variable inits 'by hand' (since the above doesnt work)
-@;	bl CortexM3asmOps_init @; !!todo -- fix this!	
-	@;here with everything set up and ready to go
+initPLL:	
+	mov.w	r3, #60672	@; 0xed00		 - set 'full access' mode in Coprocessor access control register (CPACR) (see reference above)
+	movt	r3, #57344	@; 0xe000    	 - ..
+	mov.w	r2, #60672	@; 0xed00		 - ..
+	movt	r2, #57344	@; 0xe000		 - ..
+	ldr.w	r2, [r2, #136]	@; 0x88		 - ..
+	orr.w	r2, r2, #15728640	@; 0xf00000 - ..
+	str.w	r2, [r3, #136]	@; 0x88		 - ..
+
+	@;set_reg RCC, RCC_CR, RCC_CR_HSEON_pin, RCC_CR_HESON_bits, 1
+	@;TODO
+
 	
 	@exit to main (wont return)
 call_main:	

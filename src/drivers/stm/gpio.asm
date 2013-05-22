@@ -1,53 +1,44 @@
-	.equ PA,			0x40020000
-	.equ PB,			0x40020400
-	.equ PC,			0x40020800
-	.equ PD,			0x40020c00
+	.equ GPIOA,		0x40020000
+	.equ GPIOB,		0x40020400
+	.equ GPIOC,		0x40020800
+	.equ GPIOD,		0x40020C00
 
-	.macro gpio_init_unit port pin num value ofs
-	.if \value == _
-	.else
-		ldr 	r2, =\port
-		ldr		r3, [r2, \ofs]
-		bic.w	r3, r3, (1<<\num-1)<<(\pin*\num)
-		orr.w	r3, r3, \value<<(\pin*\num)
-		str		r3, [r2, \ofs]
-	.endif
+	@;MODER
+	.equ GPIO_MODER, 0x00
+	.equ GPIO_MODER_width, 2
+	@;OTYPER
+	.equ GPIO_OTYPER, 0x04
+	.equ GPIO_OTYPER_width, 1
+	@;OSPEEDER
+	.equ GPIO_OSPEEDER, 0x08
+	.equ GPIO_OSPEEDER_width, 2
+	@;PUPDR
+	.equ GPIO_PUPDR, 0x0C
+	.equ GPIO_PUPDR_width, 2
+	@;IDR
+	.equ GPIO_IDR, 0x10
+	.equ GPIO_IDR_width, 1
+	@;BSRR
+	.equ GPIO_BSRR, 0x18
+	.equ GPIO_BSRR_width, 1
+	@;AFR
+	.equ GPIO_AFR, 0x20
+	.equ GPIO_AFR_width, 4
+
+
+	.macro gpio_init base n moder otyper ospeeder pupdr
+	set_reg_n \base, GPIO_MODER,	GPIO_MODER_width,	 \n,\moder
+	set_reg_n \base, GPIO_OTYPER,	GPIO_OTYPER_width,	 \n,\otyper
+	set_reg_n \base, GPIO_OSPEEDER,	GPIO_OSPEEDER_width, \n,\ospeeder
+	set_reg_n \base, GPIO_PUPDR,	GPIO_PUPDR_width,	 \n,\pupdr
+	.endm
+	
+	.macro set_bit base n
+	set_reg_n \base, GPIO_BSRR, GPIO_BSRR_width, \n, 1, 1 @;bsrr low
 	.endm
 
-	.macro gpio_init port pin moder otyper ospeeder pupdr
-	gpio_init_unit \port \pin 2 \moder 0
-	gpio_init_unit \port \pin 1 \otyper 4
-	gpio_init_unit \port \pin 2 \ospeeder 8
-	gpio_init_unit \port \pin 2 \pupdr 12
+	.macro reset_bit base n
+	set_reg_n \base, GPIO_BSRR, GPIO_BSRR_width, \n+16, 1, 1 @;bsrr high
 	.endm
 
 	
-	.macro set_bit port pin
-	ldr		r2, =\port
-	ldr		r3, =(1<<\pin)			@;bsrr low
-	str		r3, [r2, #0x18]
-	.endm
-
-	.macro reset_bit port pin
-	ldr		r2, =\port
-	ldr		r3, =(1<<(\pin+16))		@;bsrr high
-	str		r3, [r2, #0x18]
-	.endm
-
-	.macro read_bit port pin
-	ldr 	r1, =\port
-	ldr 	r0, [r1, #0x10]
-	tst 	r0, (1<<\pin)
-	bne 	1f
-	movs 	r0, #0
-	b 		2f
-1:
-	movs	r0, #1
-2:
-	.endm
-	
-	.macro gpio_af_conf port pin af
-	ldr 	r2, =\port
-	orr.w	r3, r3, \af<<((\pin%8)*4)
-	str		r3, [r2, #0x20+\pin/8*4]
-	.endm
