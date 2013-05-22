@@ -42,9 +42,7 @@ rotary_ccw_event:	.word 0
 	.text						@;start the code section
 
 	
-	.global tim_init
-	.thumb_func
-tim_init:
+def tim_init
 	push {lr}
 	set_reg RCC RCC_APB1ENR RCC_APB1ENR_TIM2EN_pin RCC_APB1ENR_TIM2EN_bits 1
 	timer_init TIM2,(1<<5),(1<<5)
@@ -54,29 +52,24 @@ tim_init:
 	pop {lr}
 	bx LR
 
-	.global TIM2_IRQHandler
-	.thumb_func
-TIM2_IRQHandler:
+def TIM2_IRQHandler
 	push 	{lr}
 	ldr		r0, =TIM2 		@; If update flag is set
 	ldrh	r0, [r0, #16]
 	tst.w	r0, #1
-	beq		TIM2_IRQHandler_complete
+	beq		1f
 
 	bl 		update_number
 	bl 		refresh_number
 	bl 		update_led
 	bl 		refresh_led
 
-TIM2_IRQHandler_complete:
-	set_reg TIM2,TIM_SR,TIM_SR_UIF_pin,TIM_SR_UIF_bits,0		@; Clear the update flag
+1:	set_reg TIM2,TIM_SR,TIM_SR_UIF_pin,TIM_SR_UIF_bits,0		@; Clear the update flag
 	
 	pop 	{lr}
 	bx		lr
 	
-	.global refresh_number
-	.thumb_func
-refresh_number:
+def refresh_number
 	push 	{r3-r7, lr}
 	
 	ldr 	r0, =number_cursor
@@ -97,9 +90,7 @@ refresh_number:
 	pop 	{r3-r7, lr}
 	bx 		lr	
 
-	.global refresh_led
-	.thumb_func
-refresh_led:
+def refresh_led
 	push 	{r3-r7, lr}
 	
 	ldr 	r0, =led_cursor
@@ -115,10 +106,9 @@ refresh_led:
 	ldr 	r1, [r0]
 	adds 	r1, #1
 	cmp 	r1, #6
-	blt 	refresh_led_over1
+	blt 	1f
 	subs 	r1, r1, #6
-refresh_led_over1:
-	str 	r1, [r0]
+1:	str 	r1, [r0]
 
 	pop 	{r3-r7, lr}
 	bx 		lr
@@ -153,9 +143,7 @@ refresh_led_over1:
 
 	.endm
 
-	.global switch_handler
-	.thumb_func
-switch_handler:
+def switch_handler
 	push 	{r3-r7, lr}
 	set_reg TIM2,TIM_CR1,TIM_CR1_CEN_pin,TIM_CR1_CEN_bits,0	@; Disable counter
 
@@ -177,22 +165,7 @@ switch_handler:
 	pop 	{r3-r7, lr}
 	bx 		lr
 
-@;	.global timer_on
-@;	.thumb_func
-@;timer_on:
-@;	set_reg TIM2,TIM_CR1,TIM_CR1_CEN_pin,TIM_CR1_CEN_bits,1	@; Enable counter
-@;	bx lr
-@;
-@;	.global timer_off
-@;	.thumb_func
-@;timer_off:
-@;	set_reg TIM2,TIM_CR1,TIM_CR1_CEN_pin,TIM_CR1_CEN_bits,0	@; Disable counter
-@;	bx lr
-	
-	
-	.global EXTI15_10_IRQHandler
-	.thumb_func
-EXTI15_10_IRQHandler:
+def EXTI15_10_IRQHandler
 	push {lr}
 	read_bit_n EXTI, EXTI_PR, 12
 	cmp 	r0, 0
@@ -225,45 +198,4 @@ EXTI15_10_IRQHandler:
 1:	pop {lr}
 	bx lr
 
-	.global test1
-	.thumb_func
-test1:
-	push {lr}
-	read_bit_n EXTI, EXTI_PR, 12
-	pop {lr}
-	bx lr
-	
-	.global test2
-	.thumb_func
-test2:
-	push {lr}
-	mov.w	r1, (1<<12)
-2:	subs	r1, #1
-	bne		2b
-	pop {lr}
-	bx lr
-
-	.global test3
-	.thumb_func
-test3:
-	push {lr}
-	read_bit_n GPIOC, GPIO_IDR, 12
-	pop {lr}
-	bx lr
-	
-	.global test4
-	.thumb_func
-test4:
-	push {lr}
-	read_bit_n GPIOB, GPIO_IDR, 5
-	pop {lr}
-	bx lr
-
-	.global test5
-	.thumb_func
-test5:
-	push {lr}
-	set_reg_n EXTI, EXTI_PR, EXTI_PR_width, 12, 1, 1
-	pop {lr}
-	bx lr
 	

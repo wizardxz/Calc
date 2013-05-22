@@ -9,6 +9,7 @@ void delay(int t) {
 void main(void) {
 	biz_init();	
 	display_init();
+	display_on();
 	switch_init();
 	rotary_init();
 	tim_init();

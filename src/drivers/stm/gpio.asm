@@ -26,11 +26,18 @@
 	.equ GPIO_AFR_width, 4
 
 
-	.macro gpio_init base n moder otyper ospeeder pupdr
+	.macro gpio_enable base n moder otyper ospeeder pupdr
 	set_reg_n \base, GPIO_MODER,	GPIO_MODER_width,	 \n,\moder
 	set_reg_n \base, GPIO_OTYPER,	GPIO_OTYPER_width,	 \n,\otyper
 	set_reg_n \base, GPIO_OSPEEDER,	GPIO_OSPEEDER_width, \n,\ospeeder
 	set_reg_n \base, GPIO_PUPDR,	GPIO_PUPDR_width,	 \n,\pupdr
+	.endm
+	
+	.macro gpio_disable base n
+	set_reg_n \base, GPIO_MODER,	GPIO_MODER_width,	 \n,0
+	set_reg_n \base, GPIO_OTYPER,	GPIO_OTYPER_width,	 \n,0
+	set_reg_n \base, GPIO_OSPEEDER,	GPIO_OSPEEDER_width, \n,0
+	set_reg_n \base, GPIO_PUPDR,	GPIO_PUPDR_width,	 \n,0
 	.endm
 	
 	.macro set_bit base n

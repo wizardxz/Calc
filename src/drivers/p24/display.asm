@@ -26,28 +26,47 @@
 @; --- begin code memory
 	.text						@;start the code section
 
-	.global display_init
-	.thumb_func
-display_init:
-	push {r3-r7, lr}
+def display_init
+	push {lr}
 	set_reg RCC RCC_AHB1ENR,RCC_AHB1ENR_GPIOAEN_pin,RCC_AHB1ENR_GPIOAEN_bits,1
 	set_reg RCC RCC_AHB1ENR,RCC_AHB1ENR_GPIOCEN_pin,RCC_AHB1ENR_GPIOCEN_bits,1
 
-	gpio_init GPIOC,4,1,0,2,1
-	gpio_init GPIOA,6,1,0,2,1
-	gpio_init GPIOC,5,1,0,2,1
-	gpio_init GPIOC,1,1,0,2,1
-	gpio_init GPIOC,2,1,0,2,1
-	gpio_init GPIOA,0,1,0,2,1
-	gpio_init GPIOC,3,1,0,2,1
-	gpio_init GPIOA,7,1,0,2,1
-	gpio_init GPIOA,4,1,0,2,1
-	gpio_init GPIOC,0,1,0,2,1
-	gpio_init GPIOA,1,1,0,2,1
-	gpio_init GPIOA,5,1,0,2,1
-	pop {r3-r7, lr}
+	pop {lr}
 	bx lr
 
+def display_on
+	push {lr}
+	gpio_enable GPIOC,4,1,0,2,1
+	gpio_enable GPIOA,6,1,0,2,1
+	gpio_enable GPIOC,5,1,0,2,1
+	gpio_enable GPIOC,1,1,0,2,1
+	gpio_enable GPIOC,2,1,0,2,1
+	gpio_enable GPIOA,0,1,0,2,1
+	gpio_enable GPIOC,3,1,0,2,1
+	gpio_enable GPIOA,7,1,0,2,1
+	gpio_enable GPIOA,4,1,0,2,1
+	gpio_enable GPIOC,0,1,0,2,1
+	gpio_enable GPIOA,1,1,0,2,1
+	gpio_enable GPIOA,5,1,0,2,1
+	pop {lr}
+	bx lr
+	
+def display_off
+	push {lr}
+	gpio_disable GPIOC,4
+	gpio_disable GPIOA,6
+	gpio_disable GPIOC,5
+	gpio_disable GPIOC,1
+	gpio_disable GPIOC,2
+	gpio_disable GPIOA,0
+	gpio_disable GPIOC,3
+	gpio_disable GPIOA,7
+	gpio_disable GPIOA,4
+	gpio_disable GPIOC,0
+	gpio_disable GPIOA,1
+	gpio_disable GPIOA,5
+	pop {lr}
+	bx lr
 	.ltorg
 
 	.macro set_value port pin value
@@ -69,9 +88,7 @@ display_init:
 	set_value LAT7port,LAT7pin,\v7
 	.endm
 
-	.global write_digit
-	.thumb_func 
-write_digit:
+def write_digit
 	push {r3-r7,lr}
 	push {r1}
 	set_bit AN_NENport,AN_NENpin
@@ -111,9 +128,7 @@ write_digit:
 	pop {r3-r7,lr}
 	bx lr
 
-	.global write_led
-	.thumb_func 
-write_led:
+def write_led
 	push {r3-r7,lr}
 	push {r0}
 	push {r1}

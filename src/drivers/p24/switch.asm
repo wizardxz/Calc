@@ -25,21 +25,19 @@
 @; --- begin code memory
 	.text						@;start the code section
 
-	.global switch_init
-	.thumb_func
-switch_init:
+def switch_init
 	push {r3-r7, lr}
 	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIOBEN_pin,RCC_AHB1ENR_GPIOBEN_bits,1
 	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIOCEN_pin,RCC_AHB1ENR_GPIOCEN_bits,1
 	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIODEN_pin,RCC_AHB1ENR_GPIODEN_bits,1
 
-	gpio_init GPIOB,0,0,_,_,1
-	gpio_init GPIOD,2,0,_,_,1
-	gpio_init GPIOB,1,0,_,_,1
-	gpio_init GPIOB,6,0,_,_,1
-	gpio_init GPIOB,9,1,0,2,1
-	gpio_init GPIOC,10,1,0,2,1
-	gpio_init GPIOC,11,1,0,2,1
+	gpio_enable GPIOB,0,0,_,_,1
+	gpio_enable GPIOD,2,0,_,_,1
+	gpio_enable GPIOB,1,0,_,_,1
+	gpio_enable GPIOB,6,0,_,_,1
+	gpio_enable GPIOB,9,1,0,2,1
+	gpio_enable GPIOC,10,1,0,2,1
+	gpio_enable GPIOC,11,1,0,2,1
 	
 
 	pop {r3-r7, lr}
@@ -53,97 +51,73 @@ switch_init:
 	.endm
 
 
-	.global get_s1
-	.thumb_func
-get_s1:
+def get_s1
 	push {lr}
 	get_sw S1lockport S1lockpin S1port S1pin
 	pop {lr}
 	bx lr
 
-	.global get_s2
-	.thumb_func
-get_s2:
+def get_s2
 	push {lr}
 	get_sw S2lockport S2lockpin S2port S2pin
 	pop {lr}
 	bx lr
 
-	.global get_s3
-	.thumb_func
-get_s3:
+def get_s3
 	push {lr}
 	get_sw S3lockport S3lockpin S3port S3pin
 	pop {lr}
 	bx lr
 
-	.global get_s4
-	.thumb_func
-get_s4:
+def get_s4
 	push {lr}
 	get_sw S4lockport S4lockpin S4port S4pin
 	pop {lr}
 	bx lr
 
-	.global get_s5
-	.thumb_func
-get_s5:
+def get_s5
 	push {lr}
 	get_sw S5lockport S5lockpin S5port S5pin
 	pop {lr}
 	bx lr
 
-	.global get_s6
-	.thumb_func
-get_s6:
+def get_s6
 	push {lr}
 	get_sw S6lockport S6lockpin S6port S6pin
 	pop {lr}
 	bx lr
 
-	.global get_s7
-	.thumb_func
-get_s7:
+def get_s7
 	push {lr}
 	get_sw S7lockport S7lockpin S7port S7pin
 	pop {lr}
 	bx lr
 
-	.global get_s8
-	.thumb_func
-get_s8:
+def get_s8
 	push {lr}
 	get_sw S8lockport S8lockpin S8port S8pin
 	pop {lr}
 	bx lr
 
-	.global get_s9
-	.thumb_func
-get_s9:
+def get_s9
 	push {lr}
 	get_sw S9lockport S9lockpin S9port S9pin
 	pop {lr}
 	bx lr
 
-	.global get_s10
-	.thumb_func
-get_s10:
+def get_s10
 	push {lr}
 	get_sw S10lockport S10lockpin S10port S10pin
 	pop {lr}
 	bx lr
 
-	.global get_s11
-	.thumb_func
-get_s11:
+def get_s11
 	push {lr}
 	get_sw S11lockport S11lockpin S11port S11pin
 	pop {lr}
 	bx lr
 
-	.global get_s12
-	.thumb_func
-get_s12:
+def get_s12
 	push {lr}
 	get_sw S12lockport S12lockpin S12port S12pin
 	pop {lr}

@@ -48,3 +48,11 @@
 	movs	r0, #1
 2:
 	.endm
+	
+	.macro def function		@;create a python-like function define
+	.global \function
+	.thumb_func
+\function:
+	.endm
+	
+
