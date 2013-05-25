@@ -8,18 +8,18 @@
 	.include "src/drivers/stm/rcc.asm"
 	.include "src/drivers/stm/gpio.asm"
 
-	.equ S1lockport,GPIOB;	.equ S1lockpin,9;	.equ S1port,GPIOB;	.equ S1pin,0
-	.equ S2lockport,GPIOB;	.equ S2lockpin,9;	.equ S2port,GPIOD;	.equ S2pin,2
-	.equ S3lockport,GPIOB;	.equ S3lockpin,9;	.equ S3port,GPIOB;	.equ S3pin,1
-	.equ S4lockport,GPIOB;	.equ S4lockpin,9;	.equ S4port,GPIOB;	.equ S4pin,6
-	.equ S5lockport,GPIOC;	.equ S5lockpin,10;	.equ S5port,GPIOB;	.equ S5pin,0
-	.equ S6lockport,GPIOC;	.equ S6lockpin,10;	.equ S6port,GPIOD;	.equ S6pin,2
-	.equ S7lockport,GPIOC;	.equ S7lockpin,10;	.equ S7port,GPIOB;	.equ S7pin,1
-	.equ S8lockport,GPIOC;	.equ S8lockpin,10;	.equ S8port,GPIOB;	.equ S8pin,6
-	.equ S9lockport,GPIOC;	.equ S9lockpin,11;	.equ S9port,GPIOB;	.equ S9pin,0
-	.equ S10lockport,GPIOC;	.equ S10lockpin,11;	.equ S10port,GPIOD;	.equ S10pin,2
-	.equ S11lockport,GPIOC;	.equ S11lockpin,11;	.equ S11port,GPIOB;	.equ S11pin,1
-	.equ S12lockport,GPIOC;	.equ S12lockpin,11;	.equ S12port,GPIOB;	.equ S12pin,6
+	.equ S1lockbase,GPIOB;	.equ S1lockport,9;		.equ S1base,GPIOB;	.equ S1port,0
+	.equ S2lockbase,GPIOB;	.equ S2lockport,9;		.equ S2base,GPIOD;	.equ S2port,2
+	.equ S3lockbase,GPIOB;	.equ S3lockport,9;		.equ S3base,GPIOB;	.equ S3port,1
+	.equ S4lockbase,GPIOB;	.equ S4lockport,9;		.equ S4base,GPIOB;	.equ S4port,6
+	.equ S5lockbase,GPIOC;	.equ S5lockport,10;		.equ S5base,GPIOB;	.equ S5port,0
+	.equ S6lockbase,GPIOC;	.equ S6lockport,10;		.equ S6base,GPIOD;	.equ S6port,2
+	.equ S7lockbase,GPIOC;	.equ S7lockport,10;		.equ S7base,GPIOB;	.equ S7port,1
+	.equ S8lockbase,GPIOC;	.equ S8lockport,10;		.equ S8base,GPIOB;	.equ S8port,6
+	.equ S9lockbase,GPIOC;	.equ S9lockport,11;		.equ S9base,GPIOB;	.equ S9port,0
+	.equ S10lockbase,GPIOC;	.equ S10lockport,11;	.equ S10base,GPIOD;	.equ S10port,2
+	.equ S11lockbase,GPIOC;	.equ S11lockport,11;	.equ S11base,GPIOB;	.equ S11port,1
+	.equ S12lockbase,GPIOC;	.equ S12lockport,11;	.equ S12base,GPIOB;	.equ S12port,6
 
 	
 @; --- begin code memory
@@ -31,95 +31,66 @@ def switch_init
 	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIOCEN_pin,RCC_AHB1ENR_GPIOCEN_bits,1
 	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIODEN_pin,RCC_AHB1ENR_GPIODEN_bits,1
 
+	pop {r3-r7, lr}
+	bx lr
+
+def switch_on
+	push {lr}
 	gpio_enable GPIOB,0,0,_,_,1
 	gpio_enable GPIOD,2,0,_,_,1
 	gpio_enable GPIOB,1,0,_,_,1
 	gpio_enable GPIOB,6,0,_,_,1
 	gpio_enable GPIOB,9,1,0,2,1
 	gpio_enable GPIOC,10,1,0,2,1
-	gpio_enable GPIOC,11,1,0,2,1
-	
-
-	pop {r3-r7, lr}
+	gpio_enable GPIOC,11,1,0,2,1	
+	pop {lr}
 	bx lr
 
+def switch_off_except_s10
+	push {lr}
+	gpio_disable GPIOB,0
+	gpio_disable GPIOB,1
+	gpio_disable GPIOB,6
+	gpio_disable GPIOB,9
+	gpio_disable GPIOC,1
+	pop {lr}
+	bx lr
+	
+def switch_off
+	push {lr}
+	gpio_disable GPIOB,0
+	gpio_disable GPIOD,2
+	gpio_disable GPIOB,1
+	gpio_disable GPIOB,6
+	gpio_disable GPIOB,9
+	gpio_disable GPIOC,1
+	gpio_disable GPIOC,1
+	pop {lr}
+	bx lr
 
-	.macro get_sw lockport lockpin port pin
-	reset_bit \lockport \lockpin
-	read_bit_n \port GPIO_IDR \pin
-	set_bit \lockport \lockpin
+	.macro test_sw_macro lockbase lockport base port
+	reset_port \lockbase,\lockport
+	test_reg \base,GPIO_IDR,(1<<\port)
+	set_port \lockbase,\lockport
 	.endm
 
-
-def get_s1
+def test_sw
 	push {lr}
-	get_sw S1lockport S1lockpin S1port S1pin
-	pop {lr}
+1:	cmp r0,0; 	bne 1f;	test_sw_macro S1lockbase,S1lockport,S1base,S1port;		b 2f
+1:	cmp r0,1; 	bne 1f;	test_sw_macro S2lockbase,S2lockport,S2base,S2port;		b 2f
+1:	cmp r0,2; 	bne 1f;	test_sw_macro S3lockbase,S3lockport,S3base,S3port;		b 2f
+1:	cmp r0,3; 	bne 1f;	test_sw_macro S4lockbase,S4lockport,S4base,S4port;		b 2f
+1:	cmp r0,4; 	bne 1f;	test_sw_macro S5lockbase,S5lockport,S5base,S5port;		b 2f
+1:	cmp r0,5; 	bne 1f;	test_sw_macro S6lockbase,S6lockport,S6base,S6port;		b 2f
+1:	cmp r0,6; 	bne 1f;	test_sw_macro S7lockbase,S7lockport,S7base,S7port;		b 2f
+1:	cmp r0,7; 	bne 1f;	test_sw_macro S8lockbase,S8lockport,S8base,S8port;		b 2f
+1:	cmp r0,8; 	bne 1f;	test_sw_macro S9lockbase,S9lockport,S9base,S9port;		b 2f
+1:	cmp r0,9; 	bne 1f;	test_sw_macro S10lockbase,S10lockport,S10base,S10port;	b 2f
+1:	cmp r0,10; 	bne 1f;	test_sw_macro S11lockbase,S11lockport,S11base,S11port;	b 2f
+1:	cmp r0,11; 	bne 1f;	test_sw_macro S12lockbase,S12lockport,S12base,S12port;	b 2f
+
+1:
+2:	pop {lr}
 	bx lr
 
-def get_s2
-	push {lr}
-	get_sw S2lockport S2lockpin S2port S2pin
-	pop {lr}
-	bx lr
-
-def get_s3
-	push {lr}
-	get_sw S3lockport S3lockpin S3port S3pin
-	pop {lr}
-	bx lr
-
-def get_s4
-	push {lr}
-	get_sw S4lockport S4lockpin S4port S4pin
-	pop {lr}
-	bx lr
-
-def get_s5
-	push {lr}
-	get_sw S5lockport S5lockpin S5port S5pin
-	pop {lr}
-	bx lr
-
-def get_s6
-	push {lr}
-	get_sw S6lockport S6lockpin S6port S6pin
-	pop {lr}
-	bx lr
-
-def get_s7
-	push {lr}
-	get_sw S7lockport S7lockpin S7port S7pin
-	pop {lr}
-	bx lr
-
-def get_s8
-	push {lr}
-	get_sw S8lockport S8lockpin S8port S8pin
-	pop {lr}
-	bx lr
-
-def get_s9
-	push {lr}
-	get_sw S9lockport S9lockpin S9port S9pin
-	pop {lr}
-	bx lr
-
-def get_s10
-	push {lr}
-	get_sw S10lockport S10lockpin S10port S10pin
-	pop {lr}
-	bx lr
-
-def get_s11
-	push {lr}
-	get_sw S11lockport S11lockpin S11port S11pin
-	pop {lr}
-	bx lr
-
-def get_s12
-	push {lr}
-	get_sw S12lockport S12lockpin S12port S12pin
-	pop {lr}
-	bx lr
 

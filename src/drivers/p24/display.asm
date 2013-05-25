@@ -71,9 +71,9 @@ def display_off
 
 	.macro set_value port pin value
 	.if \value == 0
-		set_bit \port,\pin
+		set_port \port,\pin
 	.else @; value == 1
-		reset_bit \port,\pin
+		reset_port \port,\pin
 	.endif
 	.endm
 
@@ -91,8 +91,8 @@ def display_off
 def write_digit
 	push {r3-r7,lr}
 	push {r1}
-	set_bit AN_NENport,AN_NENpin
-	set_bit CA_NENport,CA_NENpin
+	set_port AN_NENport,AN_NENpin
+	set_port CA_NENport,CA_NENpin
 
 1:	cmp r0, #0;		bne 1f;	set_lat 0,0,0,0,0,0,0,0;	b 2f	@;off
 1:	cmp r0, #48;	bne 1f;	set_lat 1,1,1,1,1,1,0,0;	b 2f	@;0
@@ -108,8 +108,8 @@ def write_digit
 1:	cmp r0, #45;	bne 1f;	set_lat 0,0,0,0,0,0,1,0;	b 2f	@;-
 
 1:
-2:	reset_bit CA_CLKport,CA_CLKpin
-	set_bit CA_CLKport,CA_CLKpin
+2:	reset_port CA_CLKport,CA_CLKpin
+	set_port CA_CLKport,CA_CLKpin
 	
 	pop {r1}
 	
@@ -119,11 +119,11 @@ def write_digit
 1: cmp r1, #3;		bne 1f;	set_lat 0,1,0,0,0,0,0,0;	b 2f	@;an4	
 
 1:
-2:	reset_bit AN_CLKport,AN_CLKpin
-	set_bit AN_CLKport,AN_CLKpin
+2:	reset_port AN_CLKport,AN_CLKpin
+	set_port AN_CLKport,AN_CLKpin
 
-	reset_bit AN_NENport,AN_NENpin
-	reset_bit CA_NENport,CA_NENpin
+	reset_port AN_NENport,AN_NENpin
+	reset_port CA_NENport,CA_NENpin
 	
 	pop {r3-r7,lr}
 	bx lr
@@ -132,8 +132,8 @@ def write_led
 	push {r3-r7,lr}
 	push {r0}
 	push {r1}
-	set_bit AN_NENport AN_NENpin
-	set_bit CA_NENport CA_NENpin
+	set_port AN_NENport AN_NENpin
+	set_port CA_NENport CA_NENpin
 	
 	pop {r1}
 1:	cmp r1, #0;		bne 1f;	set_lat 0,0,1,0,0,0,0,0;	b 2f	@;ca1
@@ -144,8 +144,8 @@ def write_led
 1:	cmp r1, #5;		bne 1f;	set_lat 0,1,0,0,0,0,0,0;	b 2f	@;ca6
 
 1:
-2:	reset_bit CA_CLKport,CA_CLKpin
-	set_bit CA_CLKport,CA_CLKpin
+2:	reset_port CA_CLKport,CA_CLKpin
+	set_port CA_CLKport,CA_CLKpin
 	pop {r0}
 
 1:	cmp r0, #0;		bne 1f;	set_lat 0,0,0,0,0,0,0,0;	b 2f	@;off
@@ -153,11 +153,11 @@ def write_led
 1:	cmp r0, #2;		bne 1f;	set_lat 0,0,0,0,0,0,0,1;	b 2f	@;green
 
 1:
-2:	reset_bit AN_CLKport,AN_CLKpin
-	set_bit AN_CLKport,AN_CLKpin
+2:	reset_port AN_CLKport,AN_CLKpin
+	set_port AN_CLKport,AN_CLKpin
 
-	reset_bit AN_NENport,AN_NENpin
-	reset_bit CA_NENport,CA_NENpin
+	reset_port AN_NENport,AN_NENpin
+	reset_port CA_NENport,CA_NENpin
 
 	pop {r3-r7,lr}
 	bx lr

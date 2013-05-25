@@ -48,16 +48,13 @@ def tim_init
 	timer_init TIM2,(1<<5),(1<<5)
 	set_reg_n NVIC,NVIC_ISER,NVIC_ISER_width,NVIC_TIM2IRQ,1 @; Enable tim2 nvic
 	set_reg TIM2,TIM_CR1,TIM_CR1_CEN_pin,TIM_CR1_CEN_bits,1	@; Enable counter
-	
 	pop {lr}
 	bx LR
 
 def TIM2_IRQHandler
 	push 	{lr}
-	ldr		r0, =TIM2 		@; If update flag is set
-	ldrh	r0, [r0, #16]
-	tst.w	r0, #1
-	beq		1f
+	test_reg TIM2,TIM_SR,TIM_SR_UIF_bits,TIM_SR_UIF_bits
+	bne		1f
 
 	bl 		update_number
 	bl 		refresh_number
@@ -65,7 +62,6 @@ def TIM2_IRQHandler
 	bl 		refresh_led
 
 1:	set_reg TIM2,TIM_SR,TIM_SR_UIF_pin,TIM_SR_UIF_bits,0		@; Clear the update flag
-	
 	pop 	{lr}
 	bx		lr
 	
@@ -113,33 +109,39 @@ def refresh_led
 	pop 	{r3-r7, lr}
 	bx 		lr
 
-	.macro switch_handler_unit get_switch_func num
-	bl 		\get_switch_func
+	.macro switch_handler_unit num
+	movs 	r0, \num
+	bl		test_sw
+	beq		1f
+	movs	r0, #0
+	bl		2f
+1:	movs	r0, #1
+2:
 	ldr 	r1, =button_state
-	str 	r0, [r1, \num<<2]
+	str 	r0, [r1, \num*4]
 	ldr 	r1, =prev_button_state
-	ldr 	r0, [r1, \num<<2]
+	ldr 	r0, [r1, \num*4]
 	ldr 	r1, =button_state
-	ldr 	r1, [r1, \num<<2]
+	ldr 	r1, [r1, \num*4]
 	cmp 	r0, r1
 	beq 	1f
 	blt 	2f
 	movs 	r0, \num
-	ldr 	r3, =switch_up_event
+	ldr 	r3, =switch_down_event
 	ldr 	r3, [r3]
 	blx 	r3
 	b 		1f
 2:
 	mov 	r0, \num
-	ldr 	r3, =switch_down_event
+	ldr 	r3, =switch_up_event
 	ldr 	r3, [r3]
 	blx 	r3
 	
 1:
 	ldr 	r1, =button_state
-	ldr 	r0, [r1, \num<<2]
+	ldr 	r0, [r1, \num*4]
 	ldr 	r1, =prev_button_state
-	str 	r0, [r1, \num<<2]
+	str 	r0, [r1, \num*4]
 
 	.endm
 
@@ -147,18 +149,9 @@ def switch_handler
 	push 	{r3-r7, lr}
 	set_reg TIM2,TIM_CR1,TIM_CR1_CEN_pin,TIM_CR1_CEN_bits,0	@; Disable counter
 
-	switch_handler_unit get_s1 0
-	switch_handler_unit get_s2 1
-	switch_handler_unit get_s3 2
-	switch_handler_unit get_s4 3
-	switch_handler_unit get_s5 4
-	switch_handler_unit get_s6 5
-	switch_handler_unit get_s7 6
-	switch_handler_unit get_s8 7
-	switch_handler_unit get_s9 8
-	switch_handler_unit get_s10 9
-	switch_handler_unit get_s11 10
-	switch_handler_unit get_s12 11
+	.irp num,0,1,2,3,4,5,6,7,8,9,10,11
+		switch_handler_unit \num
+	.endr
 	
 	set_reg TIM2,TIM_CR1,TIM_CR1_CEN_pin,TIM_CR1_CEN_bits,1	@; Enable counter
 
@@ -167,18 +160,15 @@ def switch_handler
 
 def EXTI15_10_IRQHandler
 	push {lr}
-	read_bit_n EXTI, EXTI_PR, 12
-	cmp 	r0, 0
-	beq 	1f
+	test_reg EXTI,EXTI_PR,(1<<12)
+	bne 	1f
 	mov.w	r1, (1<<12)
 2:	subs	r1, #1
 	bne		2b
-	read_bit_n GPIOC, GPIO_IDR, 12
-	cmp		r0, #1
+	test_reg GPIOC,GPIO_IDR,(1<<12)
 	bne		3f
-	read_bit_n GPIOB, GPIO_IDR, 5
-	cmp		r0, #0
-	bne		4f
+	test_reg GPIOB,GPIO_IDR,(1<<5)
+	beq		4f
 	
 	ldr 	r3, =rotary_cw_event
 	cmp		r3, #0
@@ -193,7 +183,7 @@ def EXTI15_10_IRQHandler
 	ldr 	r3, [r3]
 	blx 	r3
 	
-3:	set_reg_n EXTI, EXTI_PR, EXTI_PR_width, 12, 1, 1
+3:	set_reg_n EXTI, EXTI_PR, EXTI_PR_width, 12, 1
 
 1:	pop {lr}
 	bx lr

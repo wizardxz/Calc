@@ -3,6 +3,7 @@
 	@;CR
 	.equ RCC_CR, 0x00
 	.equ RCC_CR_HSEON_pin, 16;			.equ RCC_CR_HSEON_bits, (1<<RCC_CR_HSEON_pin)
+	.equ RCC_CR_PLLI2SON_pin, 26;		.equ RCC_CR_PLLI2SON_bits, (1<<RCC_CR_PLLI2SON_pin)
 	@;AHB1ENR
 	.equ RCC_AHB1ENR, 0x30
 	.equ RCC_AHB1ENR_GPIOAEN_pin, 0;	.equ RCC_AHB1ENR_GPIOAEN_bits, (1<<RCC_AHB1ENR_GPIOAEN_pin)

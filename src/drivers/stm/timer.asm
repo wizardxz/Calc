@@ -28,9 +28,9 @@
 	
 	
 	.macro timer_init base psc arr
-	set_reg \base,TIM_PSC,TIM_PSC_PSC_pin,TIM_PSC_PSC_bits,\psc,1
-	set_reg \base,TIM_ARR,TIM_ARR_ARR_pin,TIM_ARR_ARR_bits,\arr,1
-	set_reg \base,TIM_EGR,TIM_EGR_UG_pin,TIM_EGR_UG_bits,1,1	@; Force update
+	set_reg \base,TIM_PSC,TIM_PSC_PSC_pin,TIM_PSC_PSC_bits,\psc,only_set
+	set_reg \base,TIM_ARR,TIM_ARR_ARR_pin,TIM_ARR_ARR_bits,\arr,only_set
+	set_reg \base,TIM_EGR,TIM_EGR_UG_pin,TIM_EGR_UG_bits,1		@; Force update
 	set_reg \base,TIM_SR,TIM_SR_UIF_pin,TIM_SR_UIF_bits,0		@; Clear the update flag
 	set_reg \base,TIM_DIER,TIM_DIER_UIE_pin,TIM_DIER_UIE_bits,1	@; Enable interrupt on update event
 	.endm

@@ -24,9 +24,6 @@ def rotary_init
 	set_reg RCC RCC_AHB1ENR RCC_AHB1ENR_GPIOCEN_pin RCC_AHB1ENR_GPIOCEN_bits 1
 	set_reg RCC RCC_APB2ENR RCC_APB2ENR_SYSCFGEN_pin RCC_APB2ENR_SYSCFGEN_bits 1
 	
-	gpio_enable GPIOC 12 0 _ _ 1
-	gpio_enable GPIOB 5 0 _ _ 1
-	
 	set_reg_n SYSCFG, SYSCFG_EXTICR+(12/4)*4, SYSCFG_EXTICR_width, 12%12, 2
 	set_reg_n EXTI, EXTI_IMR, EXTI_IMR_width, 12, 1
 	set_reg_n EXTI, EXTI_EMR, EXTI_EMR_width, 12, 0
@@ -38,5 +35,19 @@ def rotary_init
 	pop {r3-r7, lr}
 	bx lr
 	
-	
+def rotary_on
+	push {r3-r7, lr}
+	gpio_enable GPIOC,12,0,_,_,1
+	gpio_enable GPIOB,5,0,_,_,1
+		
+	pop {r3-r7, lr}
+	bx lr
 
+def rotary_off
+	push {r3-r7, lr}
+	gpio_disable GPIOC,12
+	gpio_disable GPIOB,5 
+		
+	pop {r3-r7, lr}
+	bx lr
+	

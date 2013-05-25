@@ -28,6 +28,9 @@ void switch_down(int num) {
 		mode = FREQUENCY;
 	} else if (num == 9) {
 		mode = TEST;
+		display_off();
+		switch_off_except_s10();
+		rotary_off();
 	}
 	if (mode == FREQUENCY) {
 		if (num == 0) {
@@ -51,7 +54,11 @@ void switch_down(int num) {
 }
 
 void switch_up(int num) {
-	
+	if (num == 9) {
+		display_on();
+		switch_on();
+		rotary_on();
+	}
 }
 
 void modify_intensity(int delta) {

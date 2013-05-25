@@ -11,9 +11,12 @@ void main(void) {
 	display_init();
 	display_on();
 	switch_init();
+	switch_on();
 	rotary_init();
+	rotary_on();
 	tim_init();
 	 
+
 	while (1) {
 
 

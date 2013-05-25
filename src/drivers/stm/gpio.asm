@@ -40,12 +40,12 @@
 	set_reg_n \base, GPIO_PUPDR,	GPIO_PUPDR_width,	 \n,0
 	.endm
 	
-	.macro set_bit base n
-	set_reg_n \base, GPIO_BSRR, GPIO_BSRR_width, \n, 1, 1 @;bsrr low
+	.macro set_port base n
+	set_reg_n \base, GPIO_BSRR, GPIO_BSRR_width, \n, 1, only_set @;bsrr low
 	.endm
 
-	.macro reset_bit base n
-	set_reg_n \base, GPIO_BSRR, GPIO_BSRR_width, \n+16, 1, 1 @;bsrr high
+	.macro reset_port base n
+	set_reg_n \base, GPIO_BSRR, GPIO_BSRR_width, \n+16, 1, only_set @;bsrr high
 	.endm
 
 	
