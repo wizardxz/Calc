@@ -26,12 +26,12 @@
 	.text						@;start the code section
 
 def switch_init
-	push {r3-r7, lr}
+	push {lr}
 	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIOBEN_pin,RCC_AHB1ENR_GPIOBEN_bits,1
 	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIOCEN_pin,RCC_AHB1ENR_GPIOCEN_bits,1
 	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIODEN_pin,RCC_AHB1ENR_GPIODEN_bits,1
 
-	pop {r3-r7, lr}
+	pop {lr}
 	bx lr
 
 def switch_on

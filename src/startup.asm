@@ -8,6 +8,9 @@
 
 
  .syntax unified	@; to allow thumb-2 instruction set
+ 
+.include "src/drivers/stm/common.asm" 
+.include "src/drivers/stm/rcc.asm"
 
  @; --- Vector table definition
  .section ".cs3.interrupt_vector"
@@ -28,91 +31,96 @@
  .long  PendSV_Handler              /* PendSV Handler               */
  .long  SysTick_Handler             /* SysTick Handler              */
  /* External Interrupts */
- .long  WWDG_IRQHandler                        
- .long  PVD_IRQHandler                         
- .long  TAMP_STAMP_IRQHandler                  
- .long  RTC_WKUP_IRQHandler                    
- .long  FLASH_IRQHandler                  
- .long  RCC_IRQHandler                    
- .long  EXTI0_IRQHandler                       
- .long  EXTI1_IRQHandler                       
- .long  EXTI2_IRQHandler                       
- .long  EXTI3_IRQHandler                       
- .long  EXTI4_IRQHandler                       
- .long  DMA1_Stream0_IRQHandler           
- .long  DMA1_Stream1_IRQHandler           
- .long  DMA1_Stream2_IRQHandler           
- .long  DMA1_Stream3_IRQHandler           
- .long  DMA1_Stream4_IRQHandler           
- .long  DMA1_Stream5_IRQHandler           
- .long  DMA1_Stream6_IRQHandler           
- .long  ADC_IRQHandler                    
- .long  CAN1_TX_IRQHandler                     
- .long  CAN1_RX0_IRQHandler                    
- .long  CAN1_RX1_IRQHandler                    
- .long  CAN1_SCE_IRQHandler                    
- .long  EXTI9_5_IRQHandler                     
- .long  TIM1_BRK_TIM9_IRQHandler          
- .long  TIM1_UP_TIM10_IRQHandler          
- .long  TIM1_TRG_COM_TIM11_IRQHandler     
- .long  TIM1_CC_IRQHandler                     
- .long  TIM2_IRQHandler                   
- .long  TIM3_IRQHandler                   
- .long  TIM4_IRQHandler                   
- .long  I2C1_EV_IRQHandler                     
- .long  I2C1_ER_IRQHandler                     
- .long  I2C2_EV_IRQHandler                     
- .long  I2C2_ER_IRQHandler                       
- .long  SPI1_IRQHandler                   
- .long  SPI2_IRQHandler                   
- .long  USART1_IRQHandler                 
- .long  USART2_IRQHandler                 
- .long  USART3_IRQHandler                 
- .long  EXTI15_10_IRQHandler                   
- .long  RTC_Alarm_IRQHandler                   
- .long  OTG_FS_WKUP_IRQHandler                     
- .long  TIM8_BRK_TIM12_IRQHandler         
- .long  TIM8_UP_TIM13_IRQHandler          
- .long  TIM8_TRG_COM_TIM14_IRQHandler     
- .long  TIM8_CC_IRQHandler                     
- .long  DMA1_Stream7_IRQHandler                
- .long  FSMC_IRQHandler                   
- .long  SDIO_IRQHandler                   
- .long  TIM5_IRQHandler                   
- .long  SPI3_IRQHandler                   
- .long  UART4_IRQHandler                  
- .long  UART5_IRQHandler                  
- .long  TIM6_DAC_IRQHandler               
- .long  TIM7_IRQHandler                   
- .long  DMA2_Stream0_IRQHandler           
- .long  DMA2_Stream1_IRQHandler           
- .long  DMA2_Stream2_IRQHandler           
- .long  DMA2_Stream3_IRQHandler           
- .long  DMA2_Stream4_IRQHandler           
- .long  ETH_IRQHandler                    
- .long  ETH_WKUP_IRQHandler                    
- .long  CAN2_TX_IRQHandler                     
- .long  CAN2_RX0_IRQHandler                    
- .long  CAN2_RX1_IRQHandler                    
- .long  CAN2_SCE_IRQHandler                    
- .long  OTG_FS_IRQHandler                 
- .long  DMA2_Stream5_IRQHandler           
- .long  DMA2_Stream6_IRQHandler           
- .long  DMA2_Stream7_IRQHandler           
- .long  USART6_IRQHandler                 
- .long  I2C3_EV_IRQHandler                     
- .long  I2C3_ER_IRQHandler                     
- .long  OTG_HS_EP1_OUT_IRQHandler         
- .long  OTG_HS_EP1_IN_IRQHandler          
- .long  OTG_HS_WKUP_IRQHandler                 
- .long  OTG_HS_IRQHandler                 
- .long  DCMI_IRQHandler                   
- .long  CRYP_IRQHandler                   
- .long  HASH_RNG_IRQHandler               
- .long  FPU_IRQHandler 
+ .long	WWDG_IRQHandler             /* Window WatchDog          					*/                              
+ .long	PVD_IRQHandler              /* PVD through EXTI Line detection              */          
+ .long	TAMP_STAMP_IRQHandler       /* Tamper and TimeStamps through the EXTI line  */          
+ .long	RTC_WKUP_IRQHandler         /* RTC Wakeup through the EXTI line             */          
+ .long	FLASH_IRQHandler            /* FLASH                                        */   
+ .long	RCC_IRQHandler              /* RCC                                          */   
+ .long	EXTI0_IRQHandler            /* EXTI Line0                                   */          
+ .long	EXTI1_IRQHandler            /* EXTI Line1                                   */          
+ .long	EXTI2_IRQHandler            /* EXTI Line2                                   */          
+ .long	EXTI3_IRQHandler            /* EXTI Line3                                   */          
+ .long	EXTI4_IRQHandler            /* EXTI Line4                                   */          
+ .long	DMA1_Stream0_IRQHandler     /* DMA1 Stream 0                                */   
+ .long	DMA1_Stream1_IRQHandler     /* DMA1 Stream 1                                */   
+ .long	DMA1_Stream2_IRQHandler     /* DMA1 Stream 2                                */   
+ .long	DMA1_Stream3_IRQHandler     /* DMA1 Stream 3                                */   
+ .long	DMA1_Stream4_IRQHandler     /* DMA1 Stream 4                                */   
+ .long	DMA1_Stream5_IRQHandler     /* DMA1 Stream 5                                */   
+ .long	DMA1_Stream6_IRQHandler     /* DMA1 Stream 6                                */   
+ .long	ADC_IRQHandler              /* ADC1, ADC2 and ADC3s                         */   
+ .long	CAN1_TX_IRQHandler          /* CAN1 TX                                      */          
+ .long	CAN1_RX0_IRQHandler         /* CAN1 RX0                                     */          
+ .long	CAN1_RX1_IRQHandler         /* CAN1 RX1                                     */          
+ .long	CAN1_SCE_IRQHandler         /* CAN1 SCE                                     */          
+ .long	EXTI9_5_IRQHandler          /* External Line[9:5]s                          */          
+ .long	TIM1_BRK_TIM9_IRQHandler    /* TIM1 Break and TIM9                          */
+ .long	TIM1_UP_TIM10_IRQHandler    /* TIM1 Update and TIM10                        */
+ .long	TIM1_TRG_COM_TIM11_IRQHandler /* TIM1 Trigger and Commutation and TIM11       */
+ .long	TIM1_CC_IRQHandler          /* TIM1 Capture Compare                         */          
+ .long	TIM2_IRQHandler             /* TIM2                                         */   
+ .long	TIM3_IRQHandler             /* TIM3                                         */   
+ .long	TIM4_IRQHandler             /* TIM4                                         */   
+ .long	I2C1_EV_IRQHandler          /* I2C1 Event                                   */          
+ .long	I2C1_ER_IRQHandler          /* I2C1 Error                                   */          
+ .long	I2C2_EV_IRQHandler          /* I2C2 Event                                   */          
+ .long	I2C2_ER_IRQHandler          /* I2C2 Error                                   */            
+ .long	SPI1_IRQHandler             /* SPI1                                         */   
+ .long	SPI2_IRQHandler             /* SPI2                                         */   
+ .long	USART1_IRQHandler           /* USART1                                       */   
+ .long	USART2_IRQHandler           /* USART2                                       */   
+ .long	USART3_IRQHandler           /* USART3                                       */   
+ .long	EXTI15_10_IRQHandler        /* External Line[15:10]s                        */          
+ .long	RTC_Alarm_IRQHandler        /* RTC Alarm (A and B) through EXTI Line        */          
+ .long	OTG_FS_WKUP_IRQHandler      /* USB OTG FS Wakeup through EXTI line          */              
+ .long	TIM8_BRK_TIM12_IRQHandler   /* TIM8 Break and TIM12                         */
+ .long	TIM8_UP_TIM13_IRQHandler    /* TIM8 Update and TIM13                        */
+ .long	TIM8_TRG_COM_TIM14_IRQHandler /* TIM8 Trigger and Commutation and TIM14       */
+ .long	TIM8_CC_IRQHandler          /* TIM8 Capture Compare                         */          
+ .long	DMA1_Stream7_IRQHandler     /* DMA1 Stream7                                 */          
+ .long	FSMC_IRQHandler             /* FSMC                                         */   
+ .long	SDIO_IRQHandler             /* SDIO                                         */   
+ .long	TIM5_IRQHandler             /* TIM5                                         */   
+ .long	SPI3_IRQHandler             /* SPI3                                         */   
+ .long	UART4_IRQHandler            /* UART4                                        */   
+ .long	UART5_IRQHandler            /* UART5                                        */   
+ .long	TIM6_DAC_IRQHandler         /* TIM6 and DAC1&2 underrun errors              */     
+ .long	TIM7_IRQHandler             /* TIM7                                         */
+ .long	DMA2_Stream0_IRQHandler     /* DMA2 Stream 0                                */   
+ .long	DMA2_Stream1_IRQHandler     /* DMA2 Stream 1                                */   
+ .long	DMA2_Stream2_IRQHandler     /* DMA2 Stream 2                                */   
+ .long	DMA2_Stream3_IRQHandler     /* DMA2 Stream 3                                */   
+ .long	DMA2_Stream4_IRQHandler     /* DMA2 Stream 4                                */   
+ .long	ETH_IRQHandler              /* Ethernet                                     */   
+ .long	ETH_WKUP_IRQHandler         /* Ethernet Wakeup through EXTI line            */          
+ .long	CAN2_TX_IRQHandler          /* CAN2 TX                                      */          
+ .long	CAN2_RX0_IRQHandler         /* CAN2 RX0                                     */          
+ .long	CAN2_RX1_IRQHandler         /* CAN2 RX1                                     */          
+ .long	CAN2_SCE_IRQHandler         /* CAN2 SCE                                     */          
+ .long	OTG_FS_IRQHandler           /* USB OTG FS                                   */   
+ .long	DMA2_Stream5_IRQHandler     /* DMA2 Stream 5                                */   
+ .long	DMA2_Stream6_IRQHandler     /* DMA2 Stream 6                                */   
+ .long	DMA2_Stream7_IRQHandler     /* DMA2 Stream 7                                */   
+ .long	USART6_IRQHandler           /* USART6                                       */    
+ .long	I2C3_EV_IRQHandler          /* I2C3 event                                   */          
+ .long	I2C3_ER_IRQHandler          /* I2C3 error                                   */          
+ .long	OTG_HS_EP1_OUT_IRQHandler   /* USB OTG HS End Point 1 Out                   */   
+ .long	OTG_HS_EP1_IN_IRQHandler    /* USB OTG HS End Point 1 In                    */   
+ .long	OTG_HS_WKUP_IRQHandler      /* USB OTG HS Wakeup through EXTI               */          
+ .long	OTG_HS_IRQHandler           /* USB OTG HS                                   */   
+ .long	DCMI_IRQHandler             /* DCMI                                         */   
+ .long	CRYP_IRQHandler             /* CRYP crypto                                  */   
+ .long	HASH_RNG_IRQHandler         /* Hash and Rng                                 */
+ .long	FPU_IRQHandler              /* FPU                                          */
+ .long	UART7_IRQHandler            /* UART7                                        */
+ .long	UART8_IRQHandler            /* UART8                                        */
+ .long	SPI4_IRQHandler             /* SPI4                                         */
+ .long	SPI5_IRQHandler             /* SPI5                                         */
+ .long	SPI6_IRQHandler             /* SPI6                                         */
 @; Vendor hardware-specific interrupts go here (Not implemented)
 
-	.include "src/drivers/stm/common.asm" 
+	
 @; --- hardware reset routine
 	.text					@; start the reset code section
 
@@ -147,7 +155,8 @@ zero_bss_loop:
 	bgt zero_bss_loop		@; Repeat until done
 
 	@; necessary hardware stuff (todo: crib from disassembly of Keil initPLL.c)
-initPLL:	
+initPLL:
+@;	bl SystemInit
 	mov.w	r3, #60672	@; 0xed00		 - set 'full access' mode in Coprocessor access control register (CPACR) (see reference above)
 	movt	r3, #57344	@; 0xe000    	 - ..
 	mov.w	r2, #60672	@; 0xed00		 - ..
@@ -156,9 +165,8 @@ initPLL:
 	orr.w	r2, r2, #15728640	@; 0xf00000 - ..
 	str.w	r2, [r3, #136]	@; 0x88		 - ..
 
-	@;set_reg RCC, RCC_CR, RCC_CR_HSEON_pin, RCC_CR_HESON_bits, 1
-	@;TODO
-
+	@;default clock is HSI, M=16, N=192, P=2, SYSCLK=96MHz
+	
 	
 	@exit to main (wont return)
 call_main:	
@@ -175,104 +183,106 @@ BSS_BEG:	.word	__sbss		@; __bss_beg__
 BSS_END:	.word	__ebss		@; __bss_end__
 
 
-/* This is how the lazy guy doing it: by aliasing all the
- * interrupts into single address
- */
-	.macro weakdef function
+.macro defweak fun 
 	.thumb_func
-	.weak \function
-\function:
-	.endm
-weakdef NMI_Handler
-weakdef HardFault_Handler
-weakdef MemManage_Handler
-weakdef BusFault_Handler
-weakdef UsageFault_Handler
-weakdef SVC_Handler
-weakdef DebugMon_Handler
-weakdef PendSV_Handler
-weakdef SysTick_Handler
-weakdef WWDG_IRQHandler
-weakdef PVD_IRQHandler
-weakdef TAMP_STAMP_IRQHandler
-weakdef RTC_WKUP_IRQHandler
-weakdef FLASH_IRQHandler
-weakdef RCC_IRQHandler
-weakdef EXTI0_IRQHandler
-weakdef EXTI1_IRQHandler
-weakdef EXTI2_IRQHandler
-weakdef EXTI3_IRQHandler
-weakdef EXTI4_IRQHandler
-weakdef DMA1_Stream0_IRQHandler
-weakdef DMA1_Stream1_IRQHandler
-weakdef DMA1_Stream2_IRQHandler
-weakdef DMA1_Stream3_IRQHandler
-weakdef DMA1_Stream4_IRQHandler
-weakdef DMA1_Stream5_IRQHandler
-weakdef DMA1_Stream6_IRQHandler
-weakdef ADC_IRQHandler
-weakdef CAN1_TX_IRQHandler
-weakdef CAN1_RX0_IRQHandler
-weakdef CAN1_RX1_IRQHandler
-weakdef CAN1_SCE_IRQHandler
-weakdef EXTI9_5_IRQHandler
-weakdef TIM1_BRK_TIM9_IRQHandler
-weakdef TIM1_UP_TIM10_IRQHandler
-weakdef TIM1_TRG_COM_TIM11_IRQHandler
-weakdef TIM1_CC_IRQHandler
-weakdef TIM2_IRQHandler
-weakdef TIM3_IRQHandler
-weakdef TIM4_IRQHandler
-weakdef I2C1_EV_IRQHandler
-weakdef I2C1_ER_IRQHandler
-weakdef I2C2_EV_IRQHandler
-weakdef I2C2_ER_IRQHandler
-weakdef SPI1_IRQHandler
-weakdef SPI2_IRQHandler
-weakdef USART1_IRQHandler
-weakdef USART2_IRQHandler
-weakdef USART3_IRQHandler
-weakdef EXTI15_10_IRQHandler
-weakdef RTC_Alarm_IRQHandler
-weakdef OTG_FS_WKUP_IRQHandler
-weakdef TIM8_BRK_TIM12_IRQHandler
-weakdef TIM8_UP_TIM13_IRQHandler
-weakdef TIM8_TRG_COM_TIM14_IRQHandler
-weakdef TIM8_CC_IRQHandler
-weakdef DMA1_Stream7_IRQHandler
-weakdef FSMC_IRQHandler
-weakdef SDIO_IRQHandler
-weakdef TIM5_IRQHandler
-weakdef SPI3_IRQHandler
-weakdef UART4_IRQHandler
-weakdef UART5_IRQHandler
-weakdef TIM6_DAC_IRQHandler
-weakdef TIM7_IRQHandler
-weakdef DMA2_Stream0_IRQHandler
-weakdef DMA2_Stream1_IRQHandler
-weakdef DMA2_Stream2_IRQHandler
-weakdef DMA2_Stream3_IRQHandler
-weakdef DMA2_Stream4_IRQHandler
-weakdef ETH_IRQHandler
-weakdef ETH_WKUP_IRQHandler
-weakdef CAN2_TX_IRQHandler
-weakdef CAN2_RX0_IRQHandler
-weakdef CAN2_RX1_IRQHandler
-weakdef CAN2_SCE_IRQHandler
-weakdef OTG_FS_IRQHandler
-weakdef DMA2_Stream5_IRQHandler
-weakdef DMA2_Stream6_IRQHandler
-weakdef DMA2_Stream7_IRQHandler
-weakdef USART6_IRQHandler
-weakdef I2C3_EV_IRQHandler
-weakdef I2C3_ER_IRQHandler
-weakdef OTG_HS_EP1_OUT_IRQHandler
-weakdef OTG_HS_EP1_IN_IRQHandler
-weakdef OTG_HS_WKUP_IRQHandler
-weakdef OTG_HS_IRQHandler
-weakdef DCMI_IRQHandler
-weakdef CRYP_IRQHandler
-weakdef HASH_RNG_IRQHandler
-weakdef FPU_IRQHandler
-	bx  r14	 /* put a breakpoint here when we're debugging so we can trap here but then return to interrupted code */
- 
+	.weak \fun
+\fun:
+.endm
+
+defweak NMI_Handler
+defweak HardFault_Handler
+defweak MemManage_Handler
+defweak BusFault_Handler
+defweak UsageFault_Handler
+defweak SVC_Handler
+defweak DebugMon_Handler
+defweak PendSV_Handler
+defweak SysTick_Handler
+defweak WWDG_IRQHandler
+defweak PVD_IRQHandler
+defweak TAMP_STAMP_IRQHandler
+defweak RTC_WKUP_IRQHandler
+defweak FLASH_IRQHandler
+defweak RCC_IRQHandler
+defweak EXTI0_IRQHandler
+defweak EXTI1_IRQHandler
+defweak EXTI2_IRQHandler
+defweak EXTI3_IRQHandler
+defweak EXTI4_IRQHandler
+defweak DMA1_Stream0_IRQHandler
+defweak DMA1_Stream1_IRQHandler
+defweak DMA1_Stream2_IRQHandler
+defweak DMA1_Stream3_IRQHandler
+defweak DMA1_Stream4_IRQHandler
+defweak DMA1_Stream5_IRQHandler
+defweak DMA1_Stream6_IRQHandler
+defweak ADC_IRQHandler
+defweak CAN1_TX_IRQHandler
+defweak CAN1_RX0_IRQHandler
+defweak CAN1_RX1_IRQHandler
+defweak CAN1_SCE_IRQHandler
+defweak EXTI9_5_IRQHandler
+defweak TIM1_BRK_TIM9_IRQHandler
+defweak TIM1_UP_TIM10_IRQHandler
+defweak TIM1_TRG_COM_TIM11_IRQHandler
+defweak TIM1_CC_IRQHandler
+defweak TIM2_IRQHandler
+defweak TIM3_IRQHandler
+defweak TIM4_IRQHandler
+defweak I2C1_EV_IRQHandler
+defweak I2C1_ER_IRQHandler
+defweak I2C2_EV_IRQHandler
+defweak I2C2_ER_IRQHandler
+defweak SPI1_IRQHandler
+defweak SPI2_IRQHandler
+defweak USART1_IRQHandler
+defweak USART2_IRQHandler
+defweak USART3_IRQHandler
+defweak EXTI15_10_IRQHandler
+defweak RTC_Alarm_IRQHandler
+defweak OTG_FS_WKUP_IRQHandler
+defweak TIM8_BRK_TIM12_IRQHandler
+defweak TIM8_UP_TIM13_IRQHandler
+defweak TIM8_TRG_COM_TIM14_IRQHandler
+defweak TIM8_CC_IRQHandler
+defweak DMA1_Stream7_IRQHandler
+defweak FSMC_IRQHandler
+defweak SDIO_IRQHandler
+defweak TIM5_IRQHandler
+defweak SPI3_IRQHandler
+defweak UART4_IRQHandler
+defweak UART5_IRQHandler
+defweak TIM6_DAC_IRQHandler
+defweak TIM7_IRQHandler
+defweak DMA2_Stream0_IRQHandler
+defweak DMA2_Stream1_IRQHandler
+defweak DMA2_Stream2_IRQHandler
+defweak DMA2_Stream3_IRQHandler
+defweak DMA2_Stream4_IRQHandler
+defweak ETH_IRQHandler
+defweak ETH_WKUP_IRQHandler
+defweak CAN2_TX_IRQHandler
+defweak CAN2_RX0_IRQHandler
+defweak CAN2_RX1_IRQHandler
+defweak CAN2_SCE_IRQHandler
+defweak OTG_FS_IRQHandler
+defweak DMA2_Stream5_IRQHandler
+defweak DMA2_Stream6_IRQHandler
+defweak DMA2_Stream7_IRQHandler
+defweak USART6_IRQHandler
+defweak I2C3_EV_IRQHandler
+defweak I2C3_ER_IRQHandler
+defweak OTG_HS_EP1_OUT_IRQHandler
+defweak OTG_HS_EP1_IN_IRQHandler
+defweak OTG_HS_WKUP_IRQHandler
+defweak OTG_HS_IRQHandler
+defweak DCMI_IRQHandler
+defweak CRYP_IRQHandler
+defweak HASH_RNG_IRQHandler
+defweak FPU_IRQHandler
+defweak UART7_IRQHandler
+defweak UART8_IRQHandler
+defweak SPI4_IRQHandler
+defweak SPI5_IRQHandler
+defweak SPI6_IRQHandler
+	bx lr

@@ -28,7 +28,7 @@
 	.endif
 	.endm
 
-	.macro test_reg base offset bits value=default
+	.macro test_reg base offset bits value=default	@;result is in flag, beq means bits equals to 1
 	ldr		r3, =\base
 	ldr 	r2, [r3, \offset]
 	ldr		r3, =\bits

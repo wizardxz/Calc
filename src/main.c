@@ -1,5 +1,6 @@
-//#include <stm32f4xx.h>
-
+//#include "main.h"
+//extern int review_status;
+//#define REVIEW_RESET_PENDING 3
 
 void delay(int t) {
 	while (t--);
@@ -7,20 +8,29 @@ void delay(int t) {
 
 
 void main(void) {
-	biz_init();	
+	event_init();
+	
 	display_init();
 	display_on();
+	
 	switch_init();
 	switch_on();
+	
 	rotary_init();
 	rotary_on();
-	tim_init();
-	 
 
+	init();
+	biz_init();	
+	
+	
+	//SysTick_Config(SystemCoreClock / 1000);
+	
 	while (1) {
 
 
-		delay(10000);
+		delay(1000);
 		switch_handler();
+//		if (review_status == REVIEW_RESET_PENDING)
+//			break;
 	}
 }

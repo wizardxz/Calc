@@ -9,26 +9,29 @@
 @; --- bss
 	.bss
 	
-	.global number				
-number:				.word 0, 0, 0, 0
-	.global number_cursor		
-number_cursor:		.word 0
-	.global led					
-led:				.word 0, 0, 0, 0, 0, 0
-	.global led_cursor			
-led_cursor:			.word 0
-	.global button_state		
-button_state:		.word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-	.global prev_button_state	
-prev_button_state:	.word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-	.global switch_up_event
-switch_up_event:	.word 0
-	.global switch_down_event
-switch_down_event:	.word 0
-	.global rotary_cw_event
-rotary_cw_event:	.word 0
-	.global rotary_ccw_event
-rotary_ccw_event:	.word 0
+	.macro var name size
+	.global \name
+\name:	.space \size*4, 0
+	.endm
+	
+	var number,4
+	var number_cursor,1
+	var led,6
+	var led_cursor,1
+	var button_state,12
+	var prev_button_state,12
+	var switch_up_event,1
+	var switch_down_event,1
+	var rotary_cw_event,1
+	var rotary_ccw_event,1
+	
+	var present_tones_timer,1
+	var present_tones_status,1
+	
+	var review_timer,1
+	var review_status,1
+	var review_warning_timer,1
+	var review_warning_status,1
 
 	.include "src/drivers/stm/common.asm"
 	.include "src/drivers/stm/rcc.asm"
@@ -36,21 +39,44 @@ rotary_ccw_event:	.word 0
 	.include "src/drivers/stm/nvic.asm"
 	.include "src/drivers/stm/timer.asm"
 	.include "src/drivers/stm/exti.asm"
+	.include "src/drivers/stm/systick.asm"
 
 	
 @; --- begin code memory
 	.text						@;start the code section
 
 	
-def tim_init
+def init
 	push {lr}
-	set_reg RCC RCC_APB1ENR RCC_APB1ENR_TIM2EN_pin RCC_APB1ENR_TIM2EN_bits 1
+	@;Set up TIM2
+	set_reg RCC,RCC_APB1ENR,RCC_APB1ENR_TIM2EN_pin,RCC_APB1ENR_TIM2EN_bits,1
 	timer_init TIM2,(1<<5),(1<<5)
 	set_reg_n NVIC,NVIC_ISER,NVIC_ISER_width,NVIC_TIM2IRQ,1 @; Enable tim2 nvic
 	set_reg TIM2,TIM_CR1,TIM_CR1_CEN_pin,TIM_CR1_CEN_bits,1	@; Enable counter
+	
+	@;Set up SYSTICK
+	set_reg SYSTICK,STK_LOAD,STK_LOAD_RELOAD_pin,STK_LOAD_RELOAD_bits,(1<<14) @;interval = 1ms
+	set_reg SYSTICK,STK_VAL,STK_VAL_CURRENT_pin,STK_VAL_CURRENT_bits,0
+	set_reg SYSTICK,STK_CTRL,STK_CTRL_TICKINT_pin,STK_CTRL_TICKINT_bits,1
+	set_reg SYSTICK,STK_CTRL,STK_CTRL_CLKSOURCE_pin,STK_CTRL_CLKSOURCE_bits,1
+	set_reg SYSTICK,STK_CTRL,STK_CTRL_ENABLE_pin,STK_CTRL_ENABLE_bits,1
+	
 	pop {lr}
 	bx LR
 
+def SysTick_Handler
+	push {lr}
+	bl		present_tones_handler
+	bl		review_handler
+@;	ldr		r0, =review_status
+@;	ldr		r0,[r0]
+@;	cmp		r0,#4
+@;	bne		1f
+@;	b		main
+@;1:
+	pop {lr}
+	bx LR
+	
 def TIM2_IRQHandler
 	push 	{lr}
 	test_reg TIM2,TIM_SR,TIM_SR_UIF_bits,TIM_SR_UIF_bits
@@ -66,7 +92,7 @@ def TIM2_IRQHandler
 	bx		lr
 	
 def refresh_number
-	push 	{r3-r7, lr}
+	push 	{lr}
 	
 	ldr 	r0, =number_cursor
 	ldr 	r1, [r0]
@@ -83,11 +109,11 @@ def refresh_number
 	bics 	r1, r1, ~3
 	str 	r1, [r0]
 
-	pop 	{r3-r7, lr}
+	pop 	{lr}
 	bx 		lr	
 
 def refresh_led
-	push 	{r3-r7, lr}
+	push 	{lr}
 	
 	ldr 	r0, =led_cursor
 	ldr 	r1, [r0]
@@ -106,7 +132,7 @@ def refresh_led
 	subs 	r1, r1, #6
 1:	str 	r1, [r0]
 
-	pop 	{r3-r7, lr}
+	pop 	{lr}
 	bx 		lr
 
 	.macro switch_handler_unit num
@@ -146,7 +172,7 @@ def refresh_led
 	.endm
 
 def switch_handler
-	push 	{r3-r7, lr}
+	push 	{lr}
 	set_reg TIM2,TIM_CR1,TIM_CR1_CEN_pin,TIM_CR1_CEN_bits,0	@; Disable counter
 
 	.irp num,0,1,2,3,4,5,6,7,8,9,10,11
@@ -155,7 +181,7 @@ def switch_handler
 	
 	set_reg TIM2,TIM_CR1,TIM_CR1_CEN_pin,TIM_CR1_CEN_bits,1	@; Enable counter
 
-	pop 	{r3-r7, lr}
+	pop 	{lr}
 	bx 		lr
 
 def EXTI15_10_IRQHandler
