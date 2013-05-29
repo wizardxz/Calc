@@ -52,6 +52,7 @@
 	.equ I2C_TRISE, 0x20
 	.equ I2C_TRISE_TRISE_pin, 0;	.equ I2C_TRISE_TRISE_bits, (0x3F<<I2C_TRISE_TRISE_pin)
 	
+	@;Initialize I2C by setting frequency, address, addmode, ccr and trise
 	.macro i2c_init freq address addmode ccr trise
 	set_reg I2C1, I2C_CR1, I2C_CR1_ACK_pin, I2C_CR1_ACK_bits, 1
 	set_reg I2C1, I2C_CR2, I2C_CR2_FREQ_pin, I2C_CR2_FREQ_bits, \freq

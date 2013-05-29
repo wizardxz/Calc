@@ -25,55 +25,32 @@
 @; --- begin code memory
 	.text						@;start the code section
 
+@;Initialize switches, set RCC and GPIO
 def switch_init
 	push {lr}
-	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIOBEN_pin,RCC_AHB1ENR_GPIOBEN_bits,1
-	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIOCEN_pin,RCC_AHB1ENR_GPIOCEN_bits,1
-	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIODEN_pin,RCC_AHB1ENR_GPIODEN_bits,1
+	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIOBEN_pin,RCC_AHB1ENR_GPIOBEN_bits,1		@;Enable GPIOB
+	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIOCEN_pin,RCC_AHB1ENR_GPIOCEN_bits,1		@;Enable GPIOC
+	set_reg RCC,RCC_AHB1ENR,RCC_AHB1ENR_GPIODEN_pin,RCC_AHB1ENR_GPIODEN_bits,1		@;Enable GPIOD
 
+	gpio_enable GPIOB,0,0,_,_,1		@;moder=input, pupd=pullup
+	gpio_enable GPIOD,2,0,_,_,1		@;moder=input, pupd=pullup
+	gpio_enable GPIOB,1,0,_,_,1		@;moder=input, pupd=pullup
+	gpio_enable GPIOB,6,0,_,_,1		@;moder=input, pupd=pullup
+	gpio_enable GPIOB,9,1,0,2,1		@;moder=output, otyper=pupd, ospeeder=50MHz, pupd=pullup
+	gpio_enable GPIOC,10,1,0,2,1	@;moder=output, otyper=pupd, ospeeder=50MHz, pupd=pullup
+	gpio_enable GPIOC,11,1,0,2,1	@;moder=output, otyper=pupd, ospeeder=50MHz, pupd=pullup	
 	pop {lr}
 	bx lr
 
-def switch_on
-	push {lr}
-	gpio_enable GPIOB,0,0,_,_,1
-	gpio_enable GPIOD,2,0,_,_,1
-	gpio_enable GPIOB,1,0,_,_,1
-	gpio_enable GPIOB,6,0,_,_,1
-	gpio_enable GPIOB,9,1,0,2,1
-	gpio_enable GPIOC,10,1,0,2,1
-	gpio_enable GPIOC,11,1,0,2,1	
-	pop {lr}
-	bx lr
-
-def switch_off_except_s10
-	push {lr}
-	gpio_disable GPIOB,0
-	gpio_disable GPIOB,1
-	gpio_disable GPIOB,6
-	gpio_disable GPIOB,9
-	gpio_disable GPIOC,1
-	pop {lr}
-	bx lr
-	
-def switch_off
-	push {lr}
-	gpio_disable GPIOB,0
-	gpio_disable GPIOD,2
-	gpio_disable GPIOB,1
-	gpio_disable GPIOB,6
-	gpio_disable GPIOB,9
-	gpio_disable GPIOC,1
-	gpio_disable GPIOC,1
-	pop {lr}
-	bx lr
-
+@;Test macro, test the status of a switch
 	.macro test_sw_macro lockbase lockport base port
 	reset_port \lockbase,\lockport
 	test_reg \base,GPIO_IDR,(1<<\port)
 	set_port \lockbase,\lockport
 	.endm
 
+@;Test function, test the status of a switch
+@;Parameter r0: number of switch we want to test
 def test_sw
 	push {lr}
 1:	cmp r0,0; 	bne 1f;	test_sw_macro S1lockbase,S1lockport,S1base,S1port;		b 2f

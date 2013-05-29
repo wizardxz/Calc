@@ -11,6 +11,7 @@
 	.equ SPI_I2SPR_I2SDIV_pin, 0;		.equ SPI_I2SPR_I2SDIV_bits, (0x1FF<<SPI_I2SPR_I2SDIV_pin)
 	.equ SPI_I2SPR_MCKOE_pin, 9;		.equ SPI_I2SPR_MCKOE_bits, (1<<SPI_I2SPR_MCKOE_pin)
 	
+	@;Initialize SPI by setting i2smode, i2scfg, mckoe and i2sdiv.
 	.macro spi_init base i2smode i2scfg mckoe i2sdiv
 	set_reg \base, SPI_I2SCFGR, SPI_I2SCFGR_I2SMODE_pin, SPI_I2SCFGR_I2SMODE_bits, \i2smode
 	set_reg \base, SPI_I2SCFGR, SPI_I2SCFGR_I2SCFG_pin, SPI_I2SCFGR_I2SCFG_bits, \i2scfg

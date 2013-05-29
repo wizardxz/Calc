@@ -26,7 +26,7 @@
 	.equ	TIM_ARR, 0x2C
 	.equ	TIM_ARR_ARR_pin, 0;	.equ TIM_ARR_ARR_bits, ((1<<16)<<TIM_ARR_ARR_pin)
 	
-	
+	@;Initialize timer by setting psc and arr.
 	.macro timer_init base psc arr
 	set_reg \base,TIM_PSC,TIM_PSC_PSC_pin,TIM_PSC_PSC_bits,\psc,only_set
 	set_reg \base,TIM_ARR,TIM_ARR_ARR_pin,TIM_ARR_ARR_bits,\arr,only_set

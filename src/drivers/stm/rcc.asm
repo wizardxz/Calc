@@ -1,4 +1,3 @@
-
 	.equ RCC, 		0x40023800
 	@;CR
 	.equ RCC_CR, 0x00
