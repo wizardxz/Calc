@@ -1,6 +1,0 @@
-	.equ SYSCFG,	0x40013800
-	@;SYSCFG_EXTICR
-	.equ SYSCFG_EXTICR, 0x08
-	.equ SYSCFG_EXTICR_width, 4
-	
-	
