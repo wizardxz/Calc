@@ -1,0 +1,12 @@
+build
+inc
+makeHEARmWithLib.bat
+*.o
+*.elf
+*.hex
+*.AXF
+*.dep
+*.map
+*.s
+*.lst
+*.bak
